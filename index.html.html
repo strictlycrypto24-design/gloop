@@ -1,0 +1,2356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>GLOOP NFTs // The Glooped</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://static.network.keeta.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Keeta MAINNET SDK — exposes window.KeetaNet -->
+<script src="https://static.network.keeta.com/keetanet-browser.js" defer></script>
+
+<style>
+:root{
+  --ink:#06080a;--panel:#0d1419;--panel-2:#101a20;--line:#1c2a31;
+  --paper:#e8f3ee;--muted:#5e7d78;
+  --gloop:#39ff9a;--gloop-dim:#1f8f5a;--toxic:#13f0e0;--warn:#ff5d6c;--gold:#ffd24a;--plasma:#9d5dff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink);color:var(--paper);
+  font-family:"Chakra Petch",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{background:
+  radial-gradient(1100px 700px at 78% -10%,rgba(57,255,154,.10),transparent 60%),
+  radial-gradient(900px 600px at 8% 110%,rgba(19,240,224,.07),transparent 60%),
+  repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,255,255,.012) 38px 39px),var(--ink);
+  min-height:100vh}
+.mono{font-family:"Space Mono",monospace}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/></svg>")}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 70px}
+.hidden{display:none !important}
+
+/* ─────────── HEADER ─────────── */
+header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:42px;height:42px;flex:none}
+.brand h1{font-size:19px;letter-spacing:.14em;margin:0;font-weight:700}
+.brand .sub{font-size:10.5px;letter-spacing:.4em;color:var(--muted);margin-top:2px}
+nav{display:flex;gap:18px;font-size:11px;letter-spacing:.18em;color:var(--muted)}
+nav a{text-decoration:none;color:var(--muted);transition:.2s;cursor:pointer}
+nav a:hover,nav a.on{color:var(--gloop)}
+
+/* wallet pill */
+.wallet-pill{display:flex;align-items:center;gap:10px;background:#0a1115;border:1px solid var(--line);
+  border-radius:999px;padding:6px 6px 6px 14px;font-size:11px;letter-spacing:.08em;font-family:"Space Mono",monospace}
+.wallet-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);transition:.2s}
+.wallet-pill.connected .dot{background:var(--gloop);box-shadow:0 0 10px var(--gloop)}
+.wallet-pill .addr{color:var(--muted)}
+.wallet-pill.connected .addr{color:var(--paper)}
+.wallet-pill .act{appearance:none;background:rgba(57,255,154,.12);color:var(--gloop);
+  border:1px solid var(--gloop-dim);border-radius:999px;padding:6px 12px;font-family:inherit;
+  font-size:10.5px;letter-spacing:.1em;cursor:pointer;transition:.18s;font-weight:600}
+.wallet-pill .act:hover{background:rgba(57,255,154,.24)}
+.wallet-pill.connected .act{background:rgba(255,93,108,.1);color:var(--warn);border-color:rgba(255,93,108,.4)}
+.wallet-pill.connected .act:hover{background:rgba(255,93,108,.2)}
+
+/* ─────────── LIVE TICKER ─────────── */
+.ticker-wrap{overflow:hidden;border:1px solid var(--line);background:#081014;
+  border-radius:12px;margin-bottom:26px;position:relative}
+.ticker-wrap::before,.ticker-wrap::after{content:"";position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
+.ticker-wrap::before{left:0;background:linear-gradient(90deg,#081014,transparent)}
+.ticker-wrap::after{right:0;background:linear-gradient(-90deg,#081014,transparent)}
+.ticker-track{display:flex;gap:60px;white-space:nowrap;padding:12px 0;animation:ticker 36s linear infinite;width:max-content}
+.ticker-track span{color:var(--gloop);font-size:11px;letter-spacing:.18em;font-family:"Space Mono",monospace}
+.ticker-track span.warn{color:var(--warn)}
+.ticker-track span.gold{color:var(--gold)}
+.ticker-track span.toxic{color:var(--toxic)}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ─────────── PROPAGANDA WARNING ─────────── */
+.warning-rotator{margin:0 0 26px;height:46px;position:relative;overflow:hidden;border-radius:12px;
+  border:1px solid rgba(255,93,108,.25);background:linear-gradient(90deg,rgba(255,93,108,.06),transparent 60%);
+  display:flex;align-items:center;padding:0 18px}
+.warning-rotator::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--warn);
+  box-shadow:0 0 12px var(--warn);margin-right:14px;animation:pulse-dot 1.4s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.warning-rotator .msg{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.22em;color:var(--warn);
+  font-weight:700;animation:warn-slide 1s ease-out}
+@keyframes warn-slide{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+
+/* ─────────── HERO ─────────── */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;margin-bottom:40px;
+  position:relative;padding:30px 0}
+.hero::before{content:"";position:absolute;inset:-20px;z-index:-1;
+  background:radial-gradient(circle at 20% 30%,rgba(57,255,154,.12),transparent 30%),
+             radial-gradient(circle at 80% 70%,rgba(19,240,224,.08),transparent 30%);
+  filter:blur(30px);animation:hero-pulse 8s ease-in-out infinite}
+@keyframes hero-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@media(max-width:820px){.hero{grid-template-columns:1fr}}
+.kick{font-size:11px;letter-spacing:.34em;color:var(--gloop);margin-bottom:14px}
+.hero h2{font-size:clamp(38px,6vw,68px);line-height:.96;margin:0 0 18px;font-weight:700;letter-spacing:-.01em}
+.hero h2 .drip{color:var(--gloop);text-shadow:0 0 30px rgba(57,255,154,.5)}
+.hero p{color:var(--muted);font-size:15px;line-height:1.7;max-width:46ch}
+.hero .cta{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+
+.btn{appearance:none;border:1px solid var(--gloop-dim);background:rgba(57,255,154,.1);color:var(--paper);
+  font-family:inherit;font-size:12px;letter-spacing:.14em;font-weight:600;padding:14px 22px;border-radius:10px;
+  cursor:pointer;transition:.18s;text-decoration:none;display:inline-block}
+.btn:hover{background:rgba(57,255,154,.2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(57,255,154,.2)}
+.btn.alt{border-color:var(--line);background:#0a1115}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.hero-art{position:relative;aspect-ratio:1;display:grid;place-items:center}
+.hero-art svg{width:78%;filter:drop-shadow(0 0 40px rgba(57,255,154,.4))}
+.ring{position:absolute;border:1px solid rgba(57,255,154,.14);border-radius:50%;pointer-events:none}
+.ra{inset:0;animation:spin 30s linear infinite}.rb{inset:34px;border-style:dashed;animation:spin 22s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─────────── STAT BAR ─────────── */
+.statbar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:46px}
+@media(max-width:680px){.statbar{grid-template-columns:repeat(2,1fr)}}
+.sb{background:var(--panel);padding:18px 16px}
+.sb .k{font-size:10px;letter-spacing:.22em;color:var(--muted)}
+.sb .v{font-size:24px;font-weight:700;margin-top:6px;font-family:"Space Mono",monospace}
+.sb .v small{font-size:12px;color:var(--gloop);font-weight:400}
+
+.sec-h{font-size:11px;letter-spacing:.3em;color:var(--muted);margin:0 0 18px;
+  display:flex;align-items:center;gap:12px}
+.sec-h::before{content:"";width:18px;height:1px;background:var(--gloop)}
+
+/* ─────────── ABSORPTION GRID ─────────── */
+.absorption-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:50px}
+@media(max-width:720px){.absorption-grid{grid-template-columns:repeat(2,1fr)}}
+.absorb-card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:14px;padding:18px;transition:.2s}
+.absorb-card:hover{border-color:var(--gloop-dim);transform:translateY(-2px)}
+.absorb-card .fiat{font-size:13px;letter-spacing:.24em;color:var(--paper);margin-bottom:14px;font-weight:700}
+.absorb-card .fiat .flag{font-size:18px;margin-right:6px}
+.meter{height:10px;background:#091015;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;background:linear-gradient(90deg,var(--gloop),var(--toxic));
+  box-shadow:0 0 20px rgba(57,255,154,.4);transition:width 1s ease;border-radius:999px}
+.absorb-card .percent{margin-top:10px;color:var(--gloop);font-size:11px;letter-spacing:.18em;font-family:"Space Mono",monospace}
+
+/* ─────────── GALLERY ─────────── */
+.gallery-controls{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.gallery-controls .filter{font-size:10px;letter-spacing:.16em;padding:7px 12px;border:1px solid var(--line);
+  background:#0a1115;color:var(--muted);border-radius:999px;cursor:pointer;transition:.15s;font-family:"Space Mono",monospace}
+.gallery-controls .filter:hover{border-color:var(--gloop-dim);color:var(--gloop)}
+.gallery-controls .filter.on{border-color:var(--gloop-dim);background:rgba(57,255,154,.12);color:var(--gloop)}
+.gallery-controls .count{font-size:10px;color:var(--muted);font-family:"Space Mono",monospace;margin-left:auto;letter-spacing:.12em}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:50px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:14px;overflow:hidden;cursor:pointer;transition:.2s;position:relative}
+.card::before{content:"";position:absolute;inset:0;border-radius:14px;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,transparent,transparent);transition:.3s;opacity:0;z-index:1;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.card.legendary::before{background:linear-gradient(135deg,var(--plasma),var(--gold),var(--plasma));opacity:1;animation:tier-shimmer 4s linear infinite}
+.card.epic::before{background:linear-gradient(135deg,var(--plasma),var(--toxic));opacity:.7}
+.card.rare::before{background:linear-gradient(135deg,var(--toxic),var(--gloop));opacity:.5}
+@keyframes tier-shimmer{0%{background-position:0%}100%{background-position:200%}}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.6)}
+.card:hover .art img{transform:scale(1.05);filter:drop-shadow(0 0 30px rgba(57,255,154,.35))}
+.art{aspect-ratio:1;position:relative;display:grid;place-items:center;overflow:hidden;background:#06080a}
+.art img{width:100%;height:100%;object-fit:cover;transition:.4s;display:block}
+.art .placeholder-blob{width:64%;height:64%}
+.badge-corner{position:absolute;top:8px;right:8px;font-size:8.5px;letter-spacing:.14em;
+  padding:4px 8px;border-radius:5px;font-weight:700;z-index:2}
+.b-legendary{background:linear-gradient(90deg,var(--gold),var(--plasma));color:#111;
+  box-shadow:0 0 14px rgba(255,210,74,.5)}
+.b-epic{background:var(--plasma);color:#fff}
+.b-rare{background:var(--toxic);color:#062}
+.b-uncommon{background:var(--gloop);color:#062}
+.b-common{background:#0a1115;color:var(--muted);border:1px solid var(--line)}
+.b-mine{position:absolute;top:8px;left:8px;font-size:8.5px;letter-spacing:.14em;padding:4px 8px;border-radius:5px;font-weight:700;background:var(--gold);color:#111;z-index:2}
+.card .meta{padding:13px;position:relative;z-index:1}
+.card .nm{font-size:13px;font-weight:700;letter-spacing:.04em}
+.card .sub2{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.06em;font-family:"Space Mono",monospace}
+.card .row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.card .price{font-size:12px;color:var(--gloop);font-weight:700;font-family:"Space Mono",monospace}
+.card .rank{font-size:10px;color:var(--muted);font-family:"Space Mono",monospace}
+
+/* ─────────── RANKS LADDER ─────────── */
+.ranks{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:50px}
+@media(max-width:820px){.ranks{grid-template-columns:repeat(2,1fr)}}
+.rk{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:12px;padding:18px 14px;text-align:center;position:relative;overflow:hidden;transition:.2s}
+.rk:hover{border-color:var(--gloop-dim);transform:translateY(-3px)}
+.rk .ic{font-size:26px;margin-bottom:10px}
+.rk .t{font-size:12.5px;font-weight:700;letter-spacing:.08em}
+.rk .req{font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:.05em;line-height:1.5;font-family:"Space Mono",monospace}
+.rk.current{border-color:var(--gloop);box-shadow:0 0 20px rgba(57,255,154,.2)}
+.rk.current::after{content:"YOU";position:absolute;top:6px;right:6px;font-size:8px;letter-spacing:.18em;
+  padding:2px 6px;border-radius:4px;background:var(--gloop);color:#062;font-weight:700;font-family:"Space Mono",monospace}
+.rk.tier::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--gl,transparent),transparent 40%);opacity:.5;pointer-events:none}
+
+/* ─────────── BADGES ─────────── */
+.badges{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:50px}
+.bg{display:flex;align-items:center;gap:10px;background:#0a1115;border:1px solid var(--line);
+  border-radius:999px;padding:9px 16px;font-size:11.5px;letter-spacing:.06em;transition:.2s}
+.bg:hover{border-color:var(--gloop-dim);transform:translateY(-1px)}
+.bg .d{width:9px;height:9px;border-radius:50%}
+
+/* ─────────── HALL OF FAME ─────────── */
+.hof{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:16px;overflow:hidden;margin-bottom:50px}
+.hof-h{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.hof-h .t{font-size:12px;letter-spacing:.2em;font-weight:700}
+.hof-row{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line);transition:.2s}
+.hof-row:last-child{border-bottom:none}
+.hof-row:hover{background:rgba(57,255,154,.04)}
+.hof-row .rk{width:30px;font-weight:700;font-size:16px;color:var(--muted);font-family:"Space Mono",monospace}
+.hof-row .rk.g{color:var(--gold)}.hof-row .rk.s{color:#cdd6d2}.hof-row .rk.b{color:#ff8a3d}
+.hof-row .av{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#0a1115;border:1px solid var(--line);overflow:hidden}
+.hof-row .info{flex:1;min-width:0}
+.hof-row .who{font-size:13px;font-weight:700;letter-spacing:.04em;font-family:"Space Mono",monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hof-row .ttl{font-size:10px;color:var(--gloop);letter-spacing:.1em;margin-top:2px;font-family:"Space Mono",monospace}
+.hof-row .score{text-align:right;font-family:"Space Mono",monospace}
+.hof-row .score .n{font-size:15px;font-weight:700}
+.hof-row .score .l{font-size:9px;color:var(--muted);letter-spacing:.16em}
+
+/* ─────────── LIVE FEED (floating) ─────────── */
+.feed-panel{position:fixed;right:18px;bottom:18px;width:300px;max-width:calc(100vw - 36px);
+  z-index:30;background:rgba(6,8,10,.92);border:1px solid var(--line);border-radius:16px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);transition:.3s}
+.feed-panel.minimized{transform:translateY(calc(100% - 46px))}
+.feed-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+  font-family:"Space Mono",monospace;color:var(--gloop);font-size:11px;letter-spacing:.22em;margin-bottom:12px;font-weight:700}
+.feed-head .arrow{transition:.2s;font-size:9px}
+.feed-panel.minimized .feed-head .arrow{transform:rotate(180deg)}
+.feed-list{max-height:220px;overflow-y:auto}
+.feed-item{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  font-family:"Space Mono",monospace;font-size:11px;color:#a5c0b8;letter-spacing:.04em;
+  animation:feed-slide .5s ease-out}
+.feed-item:last-child{border-bottom:none}
+.feed-item .tag{color:var(--gloop);font-weight:700}
+.feed-item.warn .tag{color:var(--warn)}
+.feed-item.gold .tag{color:var(--gold)}
+@keyframes feed-slide{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:680px){.feed-panel{display:none}}
+
+/* ─────────── MODAL ─────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(2,4,6,.85);z-index:100;display:none;
+  align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal-bg.open{display:flex}
+.modal{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;
+  position:relative;animation:modal-in .3s ease-out}
+@keyframes modal-in{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}
+.modal h3{margin:0 0 6px;font-size:18px;letter-spacing:.06em}
+.modal .ms{font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:22px;font-family:"Space Mono",monospace}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);
+  font-size:22px;cursor:pointer;transition:.15s;line-height:1;padding:6px}
+.modal-close:hover{color:var(--warn)}
+.tabs{display:flex;gap:4px;background:#0a1115;border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:20px}
+.tab{flex:1;padding:9px;font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:7px;transition:.15s;font-weight:700}
+.tab.on{background:rgba(57,255,154,.12);color:var(--gloop)}
+.tab-panel{display:none}.tab-panel.on{display:block}
+.lbl{display:block;font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.22em;
+  color:var(--muted);margin:14px 0 8px;font-weight:700}
+.fld{width:100%;background:#0a1115;border:1px solid var(--line);border-radius:10px;color:var(--paper);
+  font-family:"Space Mono",monospace;font-size:13px;padding:13px;resize:vertical;line-height:1.5}
+.fld:focus{outline:none;border-color:var(--gloop-dim);box-shadow:0 0 0 3px rgba(57,255,154,.08)}
+.security-note{margin-top:14px;padding:12px;background:rgba(255,93,108,.05);border:1px solid rgba(255,93,108,.2);
+  border-radius:10px;font-size:10.5px;color:#ffb0b6;line-height:1.6;font-family:"Space Mono",monospace}
+.security-note b{color:var(--warn)}
+.seed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.seed-grid > div{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.06);border-radius:7px;
+  padding:7px 4px 6px;text-align:center}
+.seed-grid > div span.n{font-family:"Space Mono",monospace;font-size:9px;color:var(--muted);display:block;margin-bottom:3px;letter-spacing:.06em}
+.seed-grid > div span.w{font-family:"Space Mono",monospace;font-size:11px;color:var(--paper);font-weight:600;letter-spacing:.01em}
+.checkbox-row{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:11px;color:var(--muted);font-family:"Space Mono",monospace;letter-spacing:.06em}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--gloop)}
+
+/* ─────────── NOTIFICATION ─────────── */
+.notify-wrap{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:340px}
+.notify{padding:12px 16px;border-radius:10px;background:rgba(6,8,10,.95);border:1px solid var(--line);
+  font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.06em;color:var(--paper);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:notify-in .25s ease-out;
+  box-shadow:0 12px 32px rgba(0,0,0,.5)}
+.notify.success{border-color:var(--gloop-dim);color:var(--gloop)}
+.notify.error{border-color:rgba(255,93,108,.5);color:var(--warn)}
+.notify.warning{border-color:rgba(255,210,74,.4);color:var(--gold)}
+@keyframes notify-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ─────────── FOOTER ─────────── */
+.footer{margin-top:46px;font-size:10.5px;letter-spacing:.1em;color:var(--muted);line-height:1.7;
+  border-top:1px solid var(--line);padding-top:18px;font-family:"Space Mono",monospace}
+.footer b{color:var(--paper)}
+
+/* ─────────── KEETA ANALYTICS ─────────── */
+.analytics-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:22px}
+.analytics-head .desc{color:var(--muted);font-size:13px;line-height:1.6;max-width:62ch;margin:6px 0 0;font-family:"Space Mono",monospace;letter-spacing:.02em}
+.analytics-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.data-badge{font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.22em;padding:5px 10px;
+  border-radius:999px;border:1px solid var(--line);background:#0a1115;color:var(--muted);font-weight:700}
+.data-badge.live{color:var(--gloop);border-color:var(--gloop-dim);background:rgba(57,255,154,.08)}
+.data-badge.live::before{content:"●";color:var(--gloop);margin-right:5px;animation:pulse-dot 1.4s ease-in-out infinite}
+.data-badge.demo{color:var(--gold);border-color:rgba(255,210,74,.4);background:rgba(255,210,74,.06)}
+
+.analytics-fiat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:30px}
+@media(max-width:980px){.analytics-fiat-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.analytics-fiat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:440px){.analytics-fiat-grid{grid-template-columns:1fr}}
+.fiat-card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:14px;padding:16px;position:relative;overflow:hidden;transition:.2s;cursor:pointer}
+.fiat-card:hover{border-color:var(--gloop-dim);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.4)}
+.fiat-card.active{border-color:var(--gloop);box-shadow:0 0 18px rgba(57,255,154,.15)}
+.fiat-card .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.fiat-card .head .left{display:flex;align-items:center;gap:10px}
+.fiat-card .flag{font-size:22px;line-height:1}
+.fiat-card .code{font-size:14px;font-weight:700;letter-spacing:.12em;font-family:"Space Mono",monospace}
+.fiat-card .price{text-align:right;font-family:"Space Mono",monospace}
+.fiat-card .price .val{font-size:13px;color:var(--paper);font-weight:700}
+.fiat-card .price .ch{font-size:9.5px;letter-spacing:.1em;margin-top:2px}
+.fiat-card .price .ch.up{color:var(--gloop)}
+.fiat-card .price .ch.down{color:var(--warn)}
+.fiat-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-family:"Space Mono",monospace;margin-bottom:12px}
+.fiat-stats .k{font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+.fiat-stats .v{font-size:12.5px;color:var(--paper);font-weight:700;margin-top:2px}
+.fiat-stats .v.gloop{color:var(--gloop)}
+.fiat-stats .row-full{grid-column:1/-1}
+/* Mini sparkline area */
+.fiat-card .spark{height:32px;margin:8px -16px -16px;background:rgba(0,0,0,.25);position:relative;overflow:hidden;border-top:1px solid var(--line)}
+.fiat-card .spark svg{width:100%;height:100%;display:block}
+.fiat-card .spark .live-dot{position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--gloop);box-shadow:0 0 8px var(--gloop);animation:pulse-dot 1.4s ease-in-out infinite}
+
+/* Charts row */
+.charts-row{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:30px}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+.chart-panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.chart-title{font-size:11px;letter-spacing:.22em;color:var(--muted);font-family:"Space Mono",monospace;font-weight:700}
+.chart-controls{display:flex;gap:4px}
+.chart-controls .tf{font-size:9.5px;letter-spacing:.12em;padding:5px 9px;border:1px solid var(--line);
+  background:#0a1115;color:var(--muted);border-radius:6px;cursor:pointer;font-family:"Space Mono",monospace;font-weight:700;transition:.15s}
+.chart-controls .tf:hover{color:var(--gloop)}
+.chart-controls .tf.on{background:rgba(57,255,154,.12);color:var(--gloop);border-color:var(--gloop-dim)}
+.chart-svg{width:100%;height:240px;display:block}
+.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.08em;color:var(--muted)}
+.chart-legend .lg{display:flex;align-items:center;gap:6px;cursor:pointer;transition:.15s;padding:3px 6px;border-radius:5px}
+.chart-legend .lg:hover{color:var(--paper)}
+.chart-legend .lg.off{opacity:.35;text-decoration:line-through}
+.chart-legend .lg .sw{width:10px;height:10px;border-radius:2px}
+
+/* Network stats bar */
+.network-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:24px}
+@media(max-width:680px){.network-stats{grid-template-columns:repeat(2,1fr)}}
+.network-stats .ns{background:var(--panel);padding:14px 16px}
+.network-stats .ns .k{font-size:9.5px;letter-spacing:.22em;color:var(--muted);font-family:"Space Mono",monospace}
+.network-stats .ns .v{font-size:18px;font-weight:700;margin-top:4px;font-family:"Space Mono",monospace;color:var(--paper)}
+.network-stats .ns .v.live{color:var(--gloop)}
+
+.chart-empty{display:flex;align-items:center;justify-content:center;height:240px;color:var(--muted);
+  font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;text-align:center;line-height:1.6}
+
+/* ─────────── HOLDINGS PANEL ─────────── */
+.holdings-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:22px}
+.holdings-head .desc{color:var(--muted);font-size:13px;line-height:1.6;max-width:60ch;margin:6px 0 0;font-family:"Space Mono",monospace;letter-spacing:.02em}
+.holdings-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.holdings-total{font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.08em;
+  background:#0a1115;border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+.holdings-total .v{color:var(--gloop);font-weight:700;margin-left:6px}
+
+.holdings-controls{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.holdings-controls .filter{font-size:10px;letter-spacing:.16em;padding:7px 14px;border:1px solid var(--line);
+  background:#0a1115;color:var(--muted);border-radius:999px;cursor:pointer;transition:.15s;font-family:"Space Mono",monospace;font-weight:700}
+.holdings-controls .filter:hover{border-color:var(--gloop-dim);color:var(--gloop)}
+.holdings-controls .filter.on{border-color:var(--gloop-dim);background:rgba(57,255,154,.12);color:var(--gloop)}
+.holdings-controls .sort-label{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--muted);margin-left:auto}
+
+.holdings-panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:16px;overflow:hidden;margin-bottom:30px}
+.holdings-table{width:100%;border-collapse:collapse;font-family:"Space Mono",monospace}
+.holdings-table th{text-align:left;padding:14px 18px;font-size:9.5px;letter-spacing:.22em;color:var(--muted);
+  border-bottom:1px solid var(--line);background:#0a1115;font-weight:700;text-transform:uppercase;cursor:pointer;user-select:none;white-space:nowrap}
+.holdings-table th:hover{color:var(--gloop)}
+.holdings-table th.sorted{color:var(--gloop)}
+.holdings-table th .arr{font-size:8px;margin-left:4px;opacity:.7}
+.holdings-table th.amt,.holdings-table th.price,.holdings-table th.val,.holdings-table th.ch{text-align:right}
+.holdings-table td{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;color:var(--paper);vertical-align:middle}
+.holdings-table tr:last-child td{border-bottom:none}
+.holdings-table tr.kta{background:rgba(57,255,154,.04)}
+.holdings-table tr.kta td:first-child{box-shadow:inset 3px 0 0 var(--gloop)}
+.holdings-table td.amt,.holdings-table td.price,.holdings-table td.val,.holdings-table td.ch{text-align:right;white-space:nowrap}
+.holdings-table td.asset{display:flex;align-items:center;gap:10px}
+.holdings-table td.asset .icon{width:30px;height:30px;border-radius:50%;background:#0a1115;border:1px solid var(--line);
+  display:grid;place-items:center;font-size:14px;flex:none}
+.holdings-table td.asset .info{display:flex;flex-direction:column;gap:1px;min-width:0}
+.holdings-table td.asset .sym{font-weight:700;letter-spacing:.06em;color:var(--paper)}
+.holdings-table td.asset .nm{font-size:10px;color:var(--muted);letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.holdings-table td.asset .tag{font-size:8.5px;letter-spacing:.14em;padding:2px 6px;border-radius:4px;
+  background:rgba(57,255,154,.12);color:var(--gloop);font-weight:700;margin-left:6px}
+.holdings-table td.ch.up{color:var(--gloop)}
+.holdings-table td.ch.down{color:var(--warn)}
+.holdings-table td.ch.flat{color:var(--muted)}
+.holdings-table .price-source{font-size:8.5px;color:var(--muted);letter-spacing:.08em;margin-left:6px}
+.holdings-empty{padding:40px 20px;text-align:center;color:var(--muted);font-family:"Space Mono",monospace;
+  font-size:11.5px;letter-spacing:.12em;line-height:1.8}
+.holdings-empty .ic{font-size:32px;margin-bottom:12px;opacity:.4}
+
+/* ─────────── CONVERTER ─────────── */
+.converter{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:16px;padding:20px;margin-bottom:40px}
+.converter h4{margin:0 0 14px;font-size:11px;letter-spacing:.22em;color:var(--muted);font-family:"Space Mono",monospace;font-weight:700}
+.converter-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:end}
+@media(max-width:600px){.converter-row{grid-template-columns:1fr;gap:18px}.converter-swap{transform:rotate(90deg)}}
+.cnv-field{display:flex;flex-direction:column;gap:6px}
+.cnv-field label{font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.18em;color:var(--muted)}
+.cnv-input-wrap{display:flex;gap:6px;background:#0a1115;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cnv-input-wrap:focus-within{border-color:var(--gloop-dim);box-shadow:0 0 0 3px rgba(57,255,154,.08)}
+.cnv-input{flex:1;background:transparent;border:none;color:var(--paper);font-family:"Space Mono",monospace;font-size:16px;padding:12px;outline:none;min-width:0}
+.cnv-select{background:#06080a;color:var(--paper);font-family:"Space Mono",monospace;font-size:12px;
+  border:none;border-left:1px solid var(--line);padding:0 12px;cursor:pointer;outline:none;min-width:80px}
+.converter-swap{background:rgba(57,255,154,.1);border:1px solid var(--gloop-dim);color:var(--gloop);
+  border-radius:10px;width:42px;height:42px;align-self:end;margin-bottom:1px;cursor:pointer;font-size:18px;transition:.15s}
+.converter-swap:hover{background:rgba(57,255,154,.2);transform:rotate(180deg)}
+.cnv-rate{margin-top:14px;font-family:"Space Mono",monospace;font-size:10px;color:var(--muted);letter-spacing:.06em}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<!-- Reusable SVG gradients -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#5dffb0"/><stop offset=".55" stop-color="#39ff9a"/><stop offset="1" stop-color="#0f9d6a"/>
+  </linearGradient>
+  <linearGradient id="gg2" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#13f0e0"/><stop offset="1" stop-color="#0f9d6a"/></linearGradient>
+  <linearGradient id="ggold" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ffe680"/><stop offset="1" stop-color="#ffb020"/></linearGradient>
+</defs></svg>
+
+<div class="notify-wrap" id="notifyWrap"></div>
+
+<div class="wrap">
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M24 4c6 6 13 9 13 19 0 8-5.8 13-13 13s-13-5-13-13C11 13 18 10 24 4Z" fill="url(#gg)"/>
+        <circle cx="20" cy="22" r="2.4" fill="#06080a"/><circle cx="29" cy="22" r="2.4" fill="#06080a"/>
+        <path d="M14 38c3 4 17 4 20 0" stroke="#39ff9a" stroke-width="1.5" opacity=".5"/>
+      </svg>
+      <div><h1>GLOOP</h1><div class="sub mono">THE GLOOPED · KEETA MAINNET</div></div>
+    </div>
+    <nav class="mono">
+      <a data-scroll="gallery">NFTs</a>
+      <a data-scroll="holdings">HOLDINGS</a>
+      <a data-scroll="analytics">ANALYTICS</a>
+      <a data-scroll="ranks">RANKS</a>
+      <a data-scroll="hall">HALL OF FAME</a>
+    </nav>
+    <!-- Wallet pill -->
+    <div class="wallet-pill" id="walletPill">
+      <span class="dot"></span>
+      <span class="addr" id="walletAddrText">NOT CONNECTED</span>
+      <button class="act" id="walletBtn">CONNECT</button>
+    </div>
+  </header>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+
+  <!-- PROPAGANDA WARNING BANNER -->
+  <div class="warning-rotator">
+    <span class="msg" id="warnMsg">⚠ GLOBAL FIAT CONTAINMENT FAILED</span>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="kick mono">/// 362 GLOOPS · KEETA MAINNET</div>
+      <h2>THESE ARE<br>THE <span class="drip">GLOOPED.</span></h2>
+      <p>362 fully on-chain Gloops — viral blobs invading the Keeta blockchain. Your Gloop is your rank, your title, and your place in the Hall of Fame. The supply only shrinks.</p>
+      <div class="cta">
+        <button class="btn" id="ctaConnect">CONNECT WALLET</button>
+        <a class="btn alt" data-scroll="gallery">VIEW THE COLLECTION</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="ring ra"></div><div class="ring rb"></div>
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <path id="heroPath" fill="url(#gg)"/>
+        <circle cx="84" cy="92" r="6" fill="#06080a"/><circle cx="120" cy="92" r="6" fill="#06080a"/>
+        <path d="M78 126c10 10 34 10 44 0" stroke="#06080a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- STAT BAR -->
+  <section class="statbar">
+    <div class="sb"><div class="k mono">SUPPLY</div><div class="v" id="statSupply">362</div></div>
+    <div class="sb"><div class="k mono">YOUR GLOOPS</div><div class="v" id="statMine">—</div></div>
+    <div class="sb"><div class="k mono">$KTA BALANCE</div><div class="v" id="statBalance">—</div></div>
+    <div class="sb"><div class="k mono">YOUR RANK</div><div class="v" id="statRank">—</div></div>
+  </section>
+
+  <!-- GLOBAL FIAT ABSORPTION -->
+  <h3 class="sec-h mono">GLOBAL FIAT ABSORPTION</h3>
+  <section class="absorption-grid" id="absorptionGrid"></section>
+
+  <!-- HOLDINGS PANEL -->
+  <div id="holdings" style="margin-top:50px"></div>
+  <div class="holdings-head">
+    <div>
+      <h3 class="sec-h mono" style="margin-bottom:0">HOLDINGS</h3>
+      <p class="desc">Your wallet's full portfolio across the Keeta blockchain — KTA pinned at top, then every token detected in your wallet. Prices from CoinGecko for crypto, live FX rates for fiat tokens, and assumed parity for stablecoins.</p>
+    </div>
+    <div class="holdings-meta">
+      <span class="holdings-total"><span>TOTAL VALUE</span><span class="v" id="holdingsTotal">—</span></span>
+    </div>
+  </div>
+
+  <div class="holdings-controls">
+    <button class="filter on" data-hf="all">ALL</button>
+    <button class="filter" data-hf="fiat">FIAT</button>
+    <button class="filter" data-hf="crypto">TOKENS</button>
+    <button class="filter" data-hf="stable">STABLES</button>
+    <span class="sort-label" id="holdingsSortLabel">SORTED BY VALUE ↓</span>
+  </div>
+
+  <div class="holdings-panel">
+    <table class="holdings-table">
+      <thead>
+        <tr>
+          <th class="sym" data-sort="symbol">ASSET</th>
+          <th class="amt sorted" data-sort="balance">AMOUNT <span class="arr">↓</span></th>
+          <th class="price" data-sort="price_usd">PRICE</th>
+          <th class="val" data-sort="value_usd">VALUE</th>
+          <th class="ch" data-sort="price_change_24h">24H</th>
+        </tr>
+      </thead>
+      <tbody id="holdingsBody">
+        <tr><td colspan="5" class="holdings-empty">
+          <div class="ic">🔌</div>
+          <div>Connect your wallet to see your holdings</div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LIVE CONVERTER -->
+  <div class="converter">
+    <h4>LIVE CONVERTER</h4>
+    <div class="converter-row">
+      <div class="cnv-field">
+        <label>FROM</label>
+        <div class="cnv-input-wrap">
+          <input type="number" class="cnv-input" id="cnvFromAmt" value="100" min="0" step="any">
+          <select class="cnv-select" id="cnvFromSym"></select>
+        </div>
+      </div>
+      <button class="converter-swap" id="cnvSwap" title="Swap">⇄</button>
+      <div class="cnv-field">
+        <label>TO</label>
+        <div class="cnv-input-wrap">
+          <input type="number" class="cnv-input" id="cnvToAmt" readonly>
+          <select class="cnv-select" id="cnvToSym"></select>
+        </div>
+      </div>
+    </div>
+    <div class="cnv-rate" id="cnvRate">—</div>
+  </div>
+
+  <!-- GALLERY -->
+  <h3 class="sec-h mono" id="gallery">THE COLLECTION</h3>
+  <div class="gallery-controls">
+    <button class="filter on" data-filter="all">ALL</button>
+    <button class="filter" data-filter="Legendary">LEGENDARY</button>
+    <button class="filter" data-filter="Epic">EPIC</button>
+    <button class="filter" data-filter="Rare">RARE</button>
+    <button class="filter" data-filter="Uncommon">UNCOMMON</button>
+    <button class="filter" data-filter="Common">COMMON</button>
+    <button class="filter" data-filter="mine">MINE</button>
+    <span class="count" id="galleryCount">SHOWING 12 OF 362</span>
+  </div>
+  <section class="grid" id="grid"></section>
+
+  <!-- KEETA ANALYTICS -->
+  <div id="analytics" style="margin-top:50px"></div>
+  <div class="analytics-head">
+    <div>
+      <h3 class="sec-h mono" style="margin-bottom:0">KEETA ANALYTICS · LIVE FROM CHAIN</h3>
+      <p class="desc">Live on-chain analytics for all fiat tokens on Keeta Mainnet. Data pulled directly from the network — no middlemen, no aggregators. The Gloop is watching every fiat absorption in real time.</p>
+    </div>
+    <div class="analytics-meta">
+      <span class="data-badge" id="analyticsBadge">DEMO DATA</span>
+      <span class="data-badge" id="analyticsLastUpdate">UPDATED —</span>
+    </div>
+  </div>
+
+  <!-- Network stats bar -->
+  <section class="network-stats">
+    <div class="ns"><div class="k">FIATS TRACKED</div><div class="v" id="nsFiats">—</div></div>
+    <div class="ns"><div class="k">TOTAL HOLDERS</div><div class="v" id="nsHolders">—</div></div>
+    <div class="ns"><div class="k">24H VOLUME (USD)</div><div class="v" id="nsVolume">—</div></div>
+    <div class="ns"><div class="k">LIVE TX COUNT</div><div class="v live" id="nsTxCount">—</div></div>
+  </section>
+
+  <!-- Per-fiat cards -->
+  <section class="analytics-fiat-grid" id="fiatGrid"></section>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <!-- Volume trend line chart -->
+    <div class="chart-panel">
+      <div class="chart-head">
+        <div class="chart-title">VOLUME TREND</div>
+        <div class="chart-controls">
+          <button class="tf on" data-tf="24h">24H</button>
+          <button class="tf" data-tf="7d">7D</button>
+          <button class="tf" data-tf="30d">30D</button>
+        </div>
+      </div>
+      <svg class="chart-svg" id="chartLine" viewBox="0 0 600 240" preserveAspectRatio="none"></svg>
+      <div class="chart-legend" id="chartLineLegend"></div>
+    </div>
+    <!-- Comparison bar chart -->
+    <div class="chart-panel">
+      <div class="chart-head">
+        <div class="chart-title">FIAT COMPARISON</div>
+        <div class="chart-controls">
+          <button class="tf on" data-bar="supply">SUPPLY</button>
+          <button class="tf" data-bar="holders">HOLDERS</button>
+          <button class="tf" data-bar="volume">VOLUME</button>
+        </div>
+      </div>
+      <svg class="chart-svg" id="chartBar" viewBox="0 0 380 240" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <!-- HOLDER RANKS -->
+  <h3 class="sec-h mono" id="ranks">HOLDER RANKS · AUTOMATIC, ON-CHAIN</h3>
+  <p style="color:var(--muted);font-size:13px;margin:-6px 0 18px;max-width:60ch;line-height:1.6">
+    Ranks are derived from your wallet — Gloops held, $KTA balance, and how early you arrived. No staking, no lockups. You just <em>are</em> your rank.</p>
+  <section class="ranks" id="ranksBar"></section>
+
+  <!-- BADGES -->
+  <h3 class="sec-h mono">HISTORICAL BADGES · NEVER RE-MINTED</h3>
+  <section class="badges">
+    <div class="bg"><span class="d" style="background:var(--gold)"></span>GENESIS GLOOP · first 100</div>
+    <div class="bg"><span class="d" style="background:var(--toxic)"></span>DAY ONE · minted launch day</div>
+    <div class="bg"><span class="d" style="background:var(--gloop)"></span>PRE-$1M ABSORBED</div>
+    <div class="bg"><span class="d" style="background:var(--warn)"></span>DIAMOND GLOOP · held 1yr+</div>
+    <div class="bg"><span class="d" style="background:#9d8cff"></span>SEASON 1 VETERAN</div>
+    <div class="bg"><span class="d" style="background:#ff8a3d"></span>COUNTRY WAR CHAMPION</div>
+  </section>
+
+  <!-- HALL OF FAME -->
+  <h3 class="sec-h mono" id="hall">HALL OF FAME · TOP GLOOP SCORES</h3>
+  <section class="hof">
+    <div class="hof-h">
+      <span class="t mono">ALL-TIME LEADERBOARD</span>
+      <span class="mono" style="font-size:10px;color:var(--muted)">GLOOP SCORE = HELD + ABSORBED + TENURE</span>
+    </div>
+    <div id="hof"></div>
+  </section>
+
+  <div class="footer mono">
+    <b>GLOOP runs on Keeta MAINNET.</b> Wallet connection uses the official KeetaNet browser SDK with AES-256-GCM encrypted session storage and PBKDF2 password vaults — your seed never leaves your browser unencrypted, never touches our servers, and is wiped from DOM the moment it's used. Demo numbers above (holders / absorbed / leaderboards) are illustrative placeholders until the contract goes live; real values pull from the chain once minting begins.
+  </div>
+</div>
+
+<!-- LIVE FEED PANEL -->
+<div class="feed-panel" id="feedPanel">
+  <div class="feed-head" id="feedToggle">
+    <span>⚡ LIVE ABSORPTION FEED</span><span class="arrow">▼</span>
+  </div>
+  <div class="feed-list" id="feedList"></div>
+</div>
+
+<!-- WALLET MODAL -->
+<div class="modal-bg" id="walletModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" id="closeWalletModal" aria-label="Close">×</button>
+    <h3>WALLET</h3>
+    <div class="ms" id="walletModalSub">Connect your Keeta wallet</div>
+
+    <div class="tabs">
+      <button class="tab on" data-tab="unlock">UNLOCK</button>
+      <button class="tab" data-tab="import">IMPORT</button>
+      <button class="tab" data-tab="create">CREATE</button>
+    </div>
+
+    <!-- UNLOCK -->
+    <div class="tab-panel on" data-panel="unlock">
+      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 14px;font-family:'Space Mono',monospace;letter-spacing:.04em" id="unlockHint">No saved wallet found. Use IMPORT to load your existing seed, or CREATE to make a new one.</p>
+      <div id="unlockPwBox" class="hidden">
+        <label class="lbl">PASSWORD</label>
+        <input type="password" class="fld" id="unlockPw" placeholder="enter your wallet password" autocomplete="off">
+        <button class="btn" id="unlockBtn" style="width:100%;margin-top:14px">UNLOCK</button>
+        <p style="margin-top:10px;font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:.08em">5 attempts then 5-min lockout</p>
+      </div>
+    </div>
+
+    <!-- IMPORT -->
+    <div class="tab-panel" data-panel="import">
+      <label class="lbl">12 OR 24 WORD SEED PHRASE</label>
+      <textarea class="fld" id="importSeed" rows="3" placeholder="word word word word word word word word word word word word" autocomplete="off" spellcheck="false"></textarea>
+      <button class="btn" id="importBtn" style="width:100%;margin-top:14px">IMPORT WALLET</button>
+      <div class="security-note">
+        <b>⚠ Security:</b> Only paste seeds you generated. Anyone with your seed phrase controls your wallet. The seed never leaves your browser and is encrypted with AES-256-GCM the moment it's used.
+      </div>
+    </div>
+
+    <!-- CREATE -->
+    <div class="tab-panel" data-panel="create">
+      <p style="color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 14px;font-family:'Space Mono',monospace;letter-spacing:.04em">Generate a brand new wallet. Write down the 24 words on paper — there is no recovery if you lose them.</p>
+      <button class="btn" id="generateBtn" style="width:100%">✨ GENERATE NEW WALLET</button>
+      <div id="seedDisplay" class="hidden" style="margin-top:18px">
+        <label class="lbl">YOUR 24-WORD SEED PHRASE</label>
+        <div class="seed-grid" id="seedGrid"></div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="seedConfirm">
+          <label for="seedConfirm">I HAVE WRITTEN THIS DOWN OFFLINE</label>
+        </div>
+        <button class="btn" id="copySeedBtn" style="width:100%;margin-top:12px" class="alt">📋 COPY SEED</button>
+        <button class="btn" id="connectGenBtn" style="width:100%;margin-top:10px" disabled>CONNECT THIS WALLET</button>
+        <div class="security-note">
+          <b>⚠ This is your only chance.</b> If you lose this seed, you lose your wallet. Store it offline (paper, metal). Never type it into any website except this one's UNLOCK screen.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD SETUP MODAL -->
+<div class="modal-bg" id="pwSetupModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" id="closePwSetup" aria-label="Close">×</button>
+    <h3>SET A WALLET PASSWORD</h3>
+    <div class="ms">Optional — encrypts your seed so you can re-unlock without re-typing it</div>
+    <label class="lbl">CHOOSE A PASSWORD</label>
+    <input type="password" class="fld" id="newPw" placeholder="at least 8 characters" autocomplete="new-password">
+    <label class="lbl">CONFIRM</label>
+    <input type="password" class="fld" id="newPw2" placeholder="repeat password" autocomplete="new-password">
+    <button class="btn" id="savePwBtn" style="width:100%;margin-top:18px">SAVE PASSWORD</button>
+    <button class="btn alt" id="skipPwBtn" style="width:100%;margin-top:8px">SKIP — DON'T SAVE</button>
+    <div class="security-note">
+      <b>How it works:</b> Your password derives an encryption key via PBKDF2 (600,000 iterations). The encrypted seed is stored locally — your password is never transmitted or stored. If you forget the password, you'll need to re-enter your seed phrase.
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════
+// STATE & CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const NETWORK = 'main'; // Keeta MAINNET
+const KTA_DECIMALS = 1e18; // 18 decimals on mainnet
+
+// ═══════════════════════════════════════════════════════════════
+// INDEXER CLIENT
+// ═══════════════════════════════════════════════════════════════
+// When you deploy the gloop-indexer backend (see /gloop-indexer/README.md),
+// paste your Railway / Render URL here. The dashboard then automatically
+// pulls real chain data instead of demo data.
+// Leave as '' to keep using demo data.
+//
+// Example:
+//   const INDEXER_BASE_URL = 'https://gloop-indexer-production.up.railway.app';
+const INDEXER_BASE_URL = '';
+
+// State to track if the indexer is reachable (set true after first 200 from /api/health)
+let indexerLive = false;
+
+async function indexerFetch(path, opts = {}) {
+  if (!INDEXER_BASE_URL) return null;
+  try {
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), opts.timeoutMs || 6000);
+    const res = await fetch(INDEXER_BASE_URL + path, {
+      headers: { 'Accept': 'application/json' },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    // Could be cold start, network issue, or no deploy yet — silently fall back
+    return null;
+  }
+}
+
+// Probe the indexer once at startup so we know whether to use it for subsequent calls
+(async function probeIndexer(){
+  if (!INDEXER_BASE_URL) {
+    console.log('🟡 No INDEXER_BASE_URL set — dashboard runs in DEMO mode');
+    return;
+  }
+  const ok = await indexerFetch('/api/health');
+  if (ok?.ok) {
+    indexerLive = true;
+    console.log('🟢 Indexer connected at', INDEXER_BASE_URL);
+    // Trigger an immediate refresh now that we know real data is available
+    if (typeof refreshAnalytics === 'function') refreshAnalytics();
+    if (typeof refreshHoldings === 'function') refreshHoldings();
+  } else {
+    console.log('🟡 Indexer at', INDEXER_BASE_URL, 'unreachable — using DEMO data');
+  }
+})();
+
+const state = {
+  keetaAccount: null,
+  keetaClient: null,
+  address: null,
+  balanceKTA: 0,
+  myGloops: [],          // Token IDs of Gloops the user owns (placeholder)
+  _lastConnectedSeed: null,
+  _balanceRefreshInterval: null,
+};
+
+// ═══════════════════════════════════════════════════════════════
+// NOTIFY
+// ═══════════════════════════════════════════════════════════════
+function notify(msg, type='info', ms=4000){
+  const wrap = document.getElementById('notifyWrap');
+  const el = document.createElement('div');
+  el.className = `notify ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(20px)'; setTimeout(()=>el.remove(),300); }, ms);
+}
+window.notify = notify;
+
+// ═══════════════════════════════════════════════════════════════
+// SEED VAULT — AES-256-GCM, session-scoped key (PunkSwap pattern)
+// ═══════════════════════════════════════════════════════════════
+const SeedVault = {
+  _KEY: 'gloop_vault_k',
+  _SEED: 'gloop_vault_s',
+  async _getOrCreateKey(){
+    try{
+      const stored = sessionStorage.getItem(this._KEY);
+      if(stored){
+        const raw = Uint8Array.from(atob(stored), c=>c.charCodeAt(0));
+        return await crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt','decrypt']);
+      }
+      const key = await crypto.subtle.generateKey({name:'AES-GCM',length:256}, true, ['encrypt','decrypt']);
+      const exported = await crypto.subtle.exportKey('raw', key);
+      sessionStorage.setItem(this._KEY, btoa(String.fromCharCode(...new Uint8Array(exported))));
+      return key;
+    }catch(e){ console.warn('🔐 Web Crypto unavailable'); return null; }
+  },
+  async store(seed){
+    if(!seed) return;
+    try{
+      const key = await this._getOrCreateKey();
+      if(!key) return;
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, new TextEncoder().encode(seed));
+      localStorage.setItem(this._SEED, JSON.stringify({
+        iv: btoa(String.fromCharCode(...iv)),
+        ct: btoa(String.fromCharCode(...new Uint8Array(ct)))
+      }));
+      console.log('🔐 Seed encrypted (AES-256-GCM)');
+    }catch(e){ console.warn('🔐 Encryption failed:', e.message); }
+  },
+  async retrieve(){
+    try{
+      const payload = localStorage.getItem(this._SEED);
+      if(!payload) return null;
+      const key = await this._getOrCreateKey();
+      if(!key) return null;
+      const {iv, ct} = JSON.parse(payload);
+      const ivB = Uint8Array.from(atob(iv), c=>c.charCodeAt(0));
+      const ctB = Uint8Array.from(atob(ct), c=>c.charCodeAt(0));
+      const dec = await crypto.subtle.decrypt({name:'AES-GCM',iv:ivB}, key, ctB);
+      return new TextDecoder().decode(dec);
+    }catch(e){
+      // Session key gone — expected, just means new tab/refresh after restart
+      localStorage.removeItem(this._SEED);
+      return null;
+    }
+  },
+  clear(){
+    localStorage.removeItem(this._SEED);
+    sessionStorage.removeItem(this._KEY);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// PASSWORD VAULT — PBKDF2 (600k iter) + AES-256-GCM (PunkSwap pattern)
+// ═══════════════════════════════════════════════════════════════
+const PasswordVault = {
+  _DATA: 'gloop_pw_seed',
+  _ATTEMPTS: 'gloop_pw_attempts',
+  _LOCKOUT: 'gloop_pw_lockout',
+  async _deriveKey(password, salt){
+    const keyMat = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      {name:'PBKDF2', salt, iterations:600000, hash:'SHA-256'},
+      keyMat, {name:'AES-GCM',length:256}, false, ['encrypt','decrypt']
+    );
+  },
+  async save(seed, password){
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await this._deriveKey(password, salt);
+    const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, new TextEncoder().encode(seed));
+    localStorage.setItem(this._DATA, JSON.stringify({
+      salt: btoa(String.fromCharCode(...salt)),
+      iv: btoa(String.fromCharCode(...iv)),
+      ct: btoa(String.fromCharCode(...new Uint8Array(ct)))
+    }));
+    console.log('🔑 Password vault saved (PBKDF2 600k + AES-256-GCM)');
+  },
+  async _load(password){
+    const raw = localStorage.getItem(this._DATA);
+    if(!raw) return null;
+    try{
+      const {salt, iv, ct} = JSON.parse(raw);
+      const saltB = Uint8Array.from(atob(salt), c=>c.charCodeAt(0));
+      const ivB = Uint8Array.from(atob(iv), c=>c.charCodeAt(0));
+      const ctB = Uint8Array.from(atob(ct), c=>c.charCodeAt(0));
+      const key = await this._deriveKey(password, saltB);
+      const dec = await crypto.subtle.decrypt({name:'AES-GCM',iv:ivB}, key, ctB);
+      return new TextDecoder().decode(dec);
+    }catch(e){ return null; }
+  },
+  hasPassword(){ return !!localStorage.getItem(this._DATA); },
+  clear(){
+    localStorage.removeItem(this._DATA);
+    localStorage.removeItem(this._ATTEMPTS);
+    localStorage.removeItem(this._LOCKOUT);
+  },
+  // Rate-limited unlock
+  async tryUnlock(password){
+    // Check lockout
+    const lockoutUntil = parseInt(localStorage.getItem(this._LOCKOUT) || '0', 10);
+    if(Date.now() < lockoutUntil){
+      const mins = Math.ceil((lockoutUntil - Date.now())/60000);
+      throw new Error(`Locked out. Try again in ${mins} min.`);
+    }
+    const seed = await this._load(password);
+    if(seed){
+      localStorage.removeItem(this._ATTEMPTS);
+      return seed;
+    }
+    // Wrong password — increment attempts
+    const attempts = parseInt(localStorage.getItem(this._ATTEMPTS) || '0', 10) + 1;
+    localStorage.setItem(this._ATTEMPTS, String(attempts));
+    if(attempts >= 5){
+      localStorage.setItem(this._LOCKOUT, String(Date.now() + 5*60*1000));
+      localStorage.removeItem(this._ATTEMPTS);
+      throw new Error('5 wrong attempts — locked out for 5 minutes.');
+    }
+    throw new Error(`Wrong password. ${5-attempts} attempts left.`);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// WALLET CONNECT — direct seed/passphrase → Keeta UserClient
+// ═══════════════════════════════════════════════════════════════
+async function waitForSDK(timeoutMs=8000){
+  const t0 = Date.now();
+  while(!window.KeetaNet){
+    if(Date.now() - t0 > timeoutMs) throw new Error('KeetaNet SDK failed to load');
+    await new Promise(r=>setTimeout(r, 100));
+  }
+  return window.KeetaNet;
+}
+
+async function connectFromSeed(passphrase){
+  if(!passphrase) throw new Error('Empty seed');
+  const words = passphrase.trim().split(/\s+/).filter(Boolean);
+  if(words.length < 12) throw new Error('Seed must be at least 12 words');
+
+  const KeetaNet = await waitForSDK();
+  notify('Connecting to Keeta mainnet…', 'success');
+
+  const hex = await KeetaNet.lib.Account.seedFromPassphrase(passphrase.trim(), {asString:true});
+  state.keetaAccount = KeetaNet.lib.Account.fromSeed(hex, 0);
+  state.address = state.keetaAccount.publicKeyString.get();
+  state.keetaClient = KeetaNet.UserClient.fromNetwork(NETWORK, state.keetaAccount);
+
+  // Encrypt seed to session-scoped vault for tab refresh resilience
+  await SeedVault.store(passphrase);
+  state._lastConnectedSeed = passphrase;
+
+  // Scrub DOM
+  const imp = document.getElementById('importSeed'); if(imp) imp.value = '';
+  document.querySelectorAll('.seed-grid > div span.w').forEach(s=>{ s.textContent = '••••'; });
+
+  updateWalletUI();
+  closeModal('walletModal');
+  notify('✅ Wallet connected', 'success');
+  refreshBalance();
+  refreshGalleryMine();
+  startBalancePoll();
+
+  // Prompt for password if not already saved
+  if(!PasswordVault.hasPassword()){
+    setTimeout(()=> openModal('pwSetupModal'), 500);
+  } else {
+    // Already have password, wipe seed from memory after a delay
+    setTimeout(()=>{ state._lastConnectedSeed = null; }, 60000);
+  }
+  resetInactivityTimer();
+}
+
+function startBalancePoll(){
+  if(state._balanceRefreshInterval) clearInterval(state._balanceRefreshInterval);
+  // Fast poll for 2 min, then slow
+  let count = 0;
+  const fastLimit = 15;
+  state._balanceRefreshInterval = setInterval(()=>{
+    if(!state.address){ clearInterval(state._balanceRefreshInterval); return; }
+    refreshBalance().catch(()=>{});
+    count++;
+    if(count === fastLimit){
+      clearInterval(state._balanceRefreshInterval);
+      state._balanceRefreshInterval = setInterval(()=>{
+        if(state.address) refreshBalance().catch(()=>{});
+        else clearInterval(state._balanceRefreshInterval);
+      }, 30000);
+    }
+  }, 8000);
+}
+
+async function refreshBalance(){
+  if(!state.address || !state.keetaClient) return;
+  try{
+    const bals = await state.keetaClient.allBalances(state.address);
+    if(!Array.isArray(bals)) return;
+    // Find KTA — try isBaseToken flag first, fallback to largest
+    let kta = bals.find(b=>b.isBaseToken === true);
+    if(!kta) kta = bals.find(b=>b.info && (b.info.symbol||'').toUpperCase()==='KTA');
+    if(!kta && bals.length>0){
+      kta = bals.reduce((max,b)=>{
+        const mb = BigInt((max.balance ?? max.amount ?? 0).toString().replace('n',''));
+        const bb = BigInt((b.balance ?? b.amount ?? 0).toString().replace('n',''));
+        return bb > mb ? b : max;
+      }, bals[0]);
+    }
+    if(kta){
+      const raw = (kta.balance ?? kta.amount ?? 0).toString().replace('n','');
+      state.balanceKTA = Number(BigInt(raw)) / KTA_DECIMALS;
+      const el = document.getElementById('statBalance');
+      if(el) el.textContent = state.balanceKTA.toFixed(4);
+    }
+  }catch(e){
+    console.warn('refreshBalance failed:', e.message);
+  }
+}
+
+function disconnectWallet(softLock=false){
+  state.address = null;
+  state.keetaAccount = null;
+  state.keetaClient = null;
+  state._lastConnectedSeed = null;
+  state.balanceKTA = 0;
+  state.myGloops = [];
+
+  if(state._balanceRefreshInterval){
+    clearInterval(state._balanceRefreshInterval);
+    state._balanceRefreshInterval = null;
+  }
+  if(!softLock) PasswordVault.clear();
+  SeedVault.clear();
+  updateWalletUI();
+  refreshGalleryMine();
+  notify(softLock ? '🔒 Wallet locked (re-unlock with password)' : '🔌 Wallet disconnected', 'warning');
+}
+window.disconnectWallet = disconnectWallet;
+
+function updateWalletUI(){
+  const pill = document.getElementById('walletPill');
+  const addrTxt = document.getElementById('walletAddrText');
+  const btn = document.getElementById('walletBtn');
+  if(state.address){
+    pill.classList.add('connected');
+    addrTxt.textContent = state.address.substring(0,10)+'...'+state.address.slice(-6);
+    btn.textContent = 'DISCONNECT';
+    document.getElementById('statMine').textContent = state.myGloops.length || '0';
+    updateRank();
+  } else {
+    pill.classList.remove('connected');
+    addrTxt.textContent = 'NOT CONNECTED';
+    btn.textContent = 'CONNECT';
+    document.getElementById('statMine').textContent = '—';
+    document.getElementById('statBalance').textContent = '—';
+    document.getElementById('statRank').textContent = '—';
+  }
+}
+
+function updateRank(){
+  // Demo rank logic — replace with real on-chain calc once contract is live
+  const held = state.myGloops.length;
+  let rank = 'GLOOPED';
+  if(held >= 50 && state.balanceKTA >= 5000) rank = 'GLOOP SOVEREIGN';
+  else if(held >= 25 && state.balanceKTA >= 1000) rank = 'LIQUIDITY LORD';
+  else if(held >= 10) rank = 'FIAT REAPER';
+  else if(held >= 3) rank = 'ABSORBER';
+  document.getElementById('statRank').textContent = rank;
+  // Highlight current rank tile
+  document.querySelectorAll('.rk').forEach(el=>el.classList.remove('current'));
+  const tile = document.querySelector(`.rk[data-rank="${rank}"]`);
+  if(tile) tile.classList.add('current');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTO-LOCK / INACTIVITY
+// ═══════════════════════════════════════════════════════════════
+let inactivityTimer;
+function resetInactivityTimer(){
+  clearTimeout(inactivityTimer);
+  if(!state.address) return;
+  inactivityTimer = setTimeout(()=>{
+    if(state.address){
+      console.log('🔒 Auto-lock after 15 min inactivity');
+      disconnectWallet(PasswordVault.hasPassword()); // soft lock if password saved
+    }
+  }, 15*60*1000);
+}
+window.resetInactivityTimer = resetInactivityTimer;
+['mousemove','keydown','click','scroll','touchstart'].forEach(ev=>{
+  window.addEventListener(ev, resetInactivityTimer, {passive:true});
+});
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target === m) m.classList.remove('open'); });
+});
+
+// Wallet modal tabs
+document.querySelectorAll('#walletModal .tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('#walletModal .tab').forEach(b=>b.classList.toggle('on', b===btn));
+    document.querySelectorAll('#walletModal .tab-panel').forEach(p=>p.classList.toggle('on', p.dataset.panel===tab));
+    const sub = document.getElementById('walletModalSub');
+    sub.textContent = tab === 'unlock' ? 'Welcome back' : tab === 'create' ? 'New wallet setup' : 'Paste your seed phrase';
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// WALLET MODAL — CONNECT BUTTON LOGIC
+// ═══════════════════════════════════════════════════════════════
+async function showWalletModal(){
+  // If already connected, this is the disconnect path
+  if(state.address){
+    if(confirm('Disconnect wallet?')) disconnectWallet(false);
+    return;
+  }
+  // Decide initial tab: unlock if password saved, else import
+  const hasPw = PasswordVault.hasPassword();
+  if(hasPw){
+    document.querySelector('#walletModal .tab[data-tab="unlock"]').click();
+    document.getElementById('unlockHint').textContent = 'Saved wallet found. Enter your password to unlock.';
+    document.getElementById('unlockPwBox').classList.remove('hidden');
+  } else {
+    document.querySelector('#walletModal .tab[data-tab="import"]').click();
+    document.getElementById('unlockHint').textContent = 'No saved wallet found. Use IMPORT to load your existing seed, or CREATE to make a new one.';
+    document.getElementById('unlockPwBox').classList.add('hidden');
+  }
+  openModal('walletModal');
+}
+
+document.getElementById('walletBtn').addEventListener('click', showWalletModal);
+document.getElementById('ctaConnect').addEventListener('click', showWalletModal);
+document.getElementById('closeWalletModal').addEventListener('click', ()=>closeModal('walletModal'));
+
+// Unlock with password
+document.getElementById('unlockBtn').addEventListener('click', async ()=>{
+  const pw = document.getElementById('unlockPw').value;
+  if(!pw) return notify('Enter your password', 'warning');
+  try{
+    const seed = await PasswordVault.tryUnlock(pw);
+    if(!seed) throw new Error('Wrong password');
+    document.getElementById('unlockPw').value = '';
+    await connectFromSeed(seed);
+  }catch(e){ notify(e.message, 'error'); }
+});
+document.getElementById('unlockPw').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('unlockBtn').click();
+});
+
+// Import seed
+document.getElementById('importBtn').addEventListener('click', async ()=>{
+  const seed = document.getElementById('importSeed').value.trim();
+  if(!seed) return notify('Paste your seed phrase', 'warning');
+  try{
+    await connectFromSeed(seed);
+    document.getElementById('importSeed').value = ''; // immediate scrub
+  }catch(e){ notify(e.message, 'error'); }
+});
+
+// Create new wallet — generate 24-word mnemonic using KeetaNet's own utility
+let _genSeed = null;
+document.getElementById('generateBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true; btn.textContent = '⏳ GENERATING...';
+  try{
+    const KeetaNet = await waitForSDK();
+    // KeetaNet exposes seed generation; mnemonic is derivable
+    // Per docs: generateRandomSeed returns hex bytes; we need a mnemonic for user backup.
+    // Strategy: use KeetaNet's seed string and turn it into a passphrase the SDK can re-derive.
+    // We use generateRandomSeed which returns a hex seed string — that IS the passphrase.
+    // For a more user-friendly 24-word mnemonic, we generate entropy and convert via BIP39.
+    _genSeed = await generateBIP39Mnemonic();
+    const grid = document.getElementById('seedGrid');
+    grid.innerHTML = _genSeed.split(' ').map((w,i)=>
+      `<div><span class="n">${i+1}</span><span class="w">${w}</span></div>`
+    ).join('');
+    document.getElementById('seedDisplay').classList.remove('hidden');
+    btn.style.display = 'none';
+    const cb = document.getElementById('seedConfirm');
+    const connectBtn = document.getElementById('connectGenBtn');
+    cb.onchange = ()=>{ connectBtn.disabled = !cb.checked; };
+  }catch(e){
+    notify('Failed to generate wallet: '+e.message, 'error');
+    btn.disabled = false; btn.textContent = '✨ GENERATE NEW WALLET';
+  }
+});
+
+document.getElementById('copySeedBtn').addEventListener('click', async ()=>{
+  if(!_genSeed) return;
+  try{
+    await navigator.clipboard.writeText(_genSeed);
+    notify('✅ Seed copied — store it safely offline', 'success');
+  }catch(e){ notify('Copy failed — select & copy manually', 'warning'); }
+});
+
+document.getElementById('connectGenBtn').addEventListener('click', async ()=>{
+  if(!_genSeed) return;
+  if(!document.getElementById('seedConfirm').checked) return notify('Confirm you wrote it down', 'warning');
+  const seed = _genSeed;
+  _genSeed = null; // clear from memory immediately
+  await connectFromSeed(seed);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// BIP39 24-word mnemonic generator (Web Crypto + inline checksum)
+// We bundle a minimal BIP39 wordlist via dynamic fetch from a CDN
+// ═══════════════════════════════════════════════════════════════
+let _bip39Words = null;
+async function getBIP39Words(){
+  if(_bip39Words) return _bip39Words;
+  // Fetch from a trusted CDN; if blocked, fall back to a baked-in subset
+  try{
+    const res = await fetch('https://cdn.jsdelivr.net/npm/@scure/bip39@1.2.1/wordlists/english.js');
+    const txt = await res.text();
+    // The file exports an array; grab strings
+    const m = txt.match(/"([a-z]+)"/g);
+    if(m && m.length >= 2048){
+      _bip39Words = m.map(s=>s.replace(/"/g,'')).slice(0,2048);
+      return _bip39Words;
+    }
+  }catch(e){}
+  throw new Error('Could not load BIP39 wordlist. Check your connection.');
+}
+async function generateBIP39Mnemonic(){
+  const words = await getBIP39Words();
+  const entropy = crypto.getRandomValues(new Uint8Array(32)); // 256 bits → 24 words
+  const hashBuf = await crypto.subtle.digest('SHA-256', entropy);
+  const hashByte = new Uint8Array(hashBuf)[0];
+  // Build bits = entropy + checksum (first 8 bits of SHA-256)
+  let bits = '';
+  for(const b of entropy) bits += b.toString(2).padStart(8,'0');
+  bits += hashByte.toString(2).padStart(8,'0');
+  // Split into 24 groups of 11 bits
+  const out = [];
+  for(let i=0;i<24;i++){
+    const chunk = bits.substr(i*11, 11);
+    out.push(words[parseInt(chunk, 2)]);
+  }
+  return out.join(' ');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PASSWORD SETUP
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('closePwSetup').addEventListener('click', ()=>closeModal('pwSetupModal'));
+document.getElementById('skipPwBtn').addEventListener('click', ()=>{
+  closeModal('pwSetupModal');
+  // Seed remains encrypted in SeedVault for this session only
+  notify('Password skipped — re-enter seed on next session', 'warning');
+});
+document.getElementById('savePwBtn').addEventListener('click', async ()=>{
+  const pw1 = document.getElementById('newPw').value;
+  const pw2 = document.getElementById('newPw2').value;
+  if(pw1.length < 8) return notify('Password must be at least 8 characters', 'warning');
+  if(pw1 !== pw2) return notify('Passwords do not match', 'error');
+  if(!state._lastConnectedSeed){
+    // Try to retrieve from SeedVault
+    const seed = await SeedVault.retrieve();
+    if(!seed) return notify('Session expired — reconnect wallet', 'error');
+    state._lastConnectedSeed = seed;
+  }
+  await PasswordVault.save(state._lastConnectedSeed, pw1);
+  document.getElementById('newPw').value = '';
+  document.getElementById('newPw2').value = '';
+  state._lastConnectedSeed = null;
+  closeModal('pwSetupModal');
+  notify('✅ Password saved — you can re-unlock with it next time', 'success');
+});
+
+// ═══════════════════════════════════════════════════════════════
+// AUTO-RECONNECT on page load (if SeedVault still has a key)
+// ═══════════════════════════════════════════════════════════════
+(async function tryAutoReconnect(){
+  try{
+    await waitForSDK(8000);
+    const seed = await SeedVault.retrieve();
+    if(seed){
+      console.log('🔐 Resuming session from encrypted vault');
+      await connectFromSeed(seed);
+    }
+  }catch(e){
+    console.log('No auto-reconnect:', e.message);
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// HERO BLOB WOBBLE
+// ═══════════════════════════════════════════════════════════════
+(function heroWobble(){
+  const p = document.getElementById('heroPath');
+  if(!p) return;
+  let t = 0;
+  function tick(){
+    t += 0.016;
+    const cx=100, cy=100, n=10, b=64;
+    let d='';
+    for(let i=0;i<=n;i++){
+      const a = i/n * Math.PI * 2;
+      const r = b + Math.sin(a*3+t)*8 + Math.cos(a*2 - t*1.2)*6 + Math.sin(t*1.7)*3;
+      const x = cx+Math.cos(a)*r, y = cy+Math.sin(a)*r;
+      d += i===0 ? `M${x.toFixed(1)} ${y.toFixed(1)}` : `L${x.toFixed(1)} ${y.toFixed(1)}`;
+    }
+    p.setAttribute('d', d+'Z');
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// TICKER
+// ═══════════════════════════════════════════════════════════════
+const TICKER_MSGS = [
+  {t:'USD +12,442 ABSORBED', c:''},
+  {t:'JPY +441,920 ABSORBED', c:''},
+  {t:'⚠ NEW FIAT REAPER DETECTED', c:'warn'},
+  {t:'42,000 $GLOOP BURNED', c:'gold'},
+  {t:'AED ENTERING ABSORPTION PHASE', c:'toxic'},
+  {t:'GLOBAL FINANCE 12.8% GLOOPED', c:''},
+  {t:'EUR +88,200 ABSORBED', c:''},
+  {t:'⚠ CONTAINMENT FAILURE — GBP', c:'warn'},
+  {t:'GLOOP SOVEREIGN DETECTED', c:'gold'},
+  {t:'CHF ABSORPTION INCREASING', c:'toxic'},
+];
+function renderTicker(){
+  const el = document.getElementById('ticker');
+  // Double the list for seamless loop
+  const html = [...TICKER_MSGS, ...TICKER_MSGS].map(m=>`<span class="${m.c}">${m.t}</span>`).join('');
+  el.innerHTML = html;
+}
+renderTicker();
+
+// ═══════════════════════════════════════════════════════════════
+// WARNING ROTATOR
+// ═══════════════════════════════════════════════════════════════
+const WARNINGS = [
+  '⚠ GLOBAL FIAT CONTAINMENT FAILED',
+  '⚠ GLOOP SPREAD ACCELERATING',
+  '⚠ USD ABSORPTION DETECTED',
+  '⚠ ANCHOR INSTABILITY CONFIRMED',
+  '⚠ GLOBAL LIQUIDITY MERGING',
+  '⚠ FIAT RESISTANCE FAILING',
+];
+let warnIdx = 0;
+function rotateWarning(){
+  const el = document.getElementById('warnMsg');
+  warnIdx = (warnIdx + 1) % WARNINGS.length;
+  // Force re-render to retrigger animation
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = '';
+  el.textContent = WARNINGS[warnIdx];
+}
+setInterval(rotateWarning, 4500);
+
+// ═══════════════════════════════════════════════════════════════
+// ABSORPTION GRID
+// ═══════════════════════════════════════════════════════════════
+const FIATS = [
+  {name:'USD', flag:'🇺🇸', pct:68},
+  {name:'JPY', flag:'🇯🇵', pct:42},
+  {name:'AED', flag:'🇦🇪', pct:18},
+  {name:'EUR', flag:'🇪🇺', pct:54},
+];
+document.getElementById('absorptionGrid').innerHTML = FIATS.map(f=>`
+  <div class="absorb-card">
+    <div class="fiat"><span class="flag">${f.flag}</span>${f.name}</div>
+    <div class="meter"><span style="width:0%"></span></div>
+    <div class="percent">${f.pct}% GLOOPED</div>
+  </div>
+`).join('');
+// Animate fill after mount
+setTimeout(()=>{
+  document.querySelectorAll('.absorb-card .meter span').forEach((s,i)=>{
+    s.style.width = FIATS[i].pct + '%';
+  });
+}, 300);
+// Live drift the percentages a little (every 12s)
+setInterval(()=>{
+  document.querySelectorAll('.absorb-card').forEach((card,i)=>{
+    const drift = (Math.random()-0.5) * 0.6;
+    FIATS[i].pct = Math.max(5, Math.min(95, FIATS[i].pct + drift));
+    const meter = card.querySelector('.meter span');
+    const pct = card.querySelector('.percent');
+    meter.style.width = FIATS[i].pct.toFixed(1) + '%';
+    pct.textContent = FIATS[i].pct.toFixed(1) + '% GLOOPED';
+  });
+}, 12000);
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE FEED PANEL
+// ═══════════════════════════════════════════════════════════════
+const FEED_TEMPLATES = [
+  {t:'[USD] +{n} absorbed', c:''},
+  {t:'[JPY] +{n} absorbed', c:''},
+  {t:'[EUR] Sovereign detected', c:'gold'},
+  {t:'[AED] {n} $GLOOP burned', c:''},
+  {t:'[GBP] Containment failure', c:'warn'},
+  {t:'[CHF] Genesis wallet entered', c:''},
+  {t:'[USD] Liquidity Lord rank achieved', c:'gold'},
+  {t:'[JPY] {n} absorbed via trade', c:''},
+];
+function addFeedItem(){
+  const tmpl = FEED_TEMPLATES[Math.floor(Math.random()*FEED_TEMPLATES.length)];
+  const n = (Math.floor(Math.random()*40000)+1000).toLocaleString();
+  const text = tmpl.t.replace('{n}', n);
+  const m = text.match(/^(\[\w+\])(.*)/);
+  const list = document.getElementById('feedList');
+  const item = document.createElement('div');
+  item.className = `feed-item ${tmpl.c}`;
+  item.innerHTML = m ? `<span class="tag">${m[1]}</span>${m[2]}` : text;
+  list.insertBefore(item, list.firstChild);
+  // Keep max 12
+  while(list.children.length > 12) list.removeChild(list.lastChild);
+}
+// Seed initial feed
+for(let i=0;i<6;i++) addFeedItem();
+setInterval(addFeedItem, 4000 + Math.random()*3000);
+// Toggle feed minimize
+document.getElementById('feedToggle').addEventListener('click', ()=>{
+  document.getElementById('feedPanel').classList.toggle('minimized');
+});
+
+// ═══════════════════════════════════════════════════════════════
+// GALLERY — placeholder Gloops with rarity tiers
+// ═══════════════════════════════════════════════════════════════
+// Demo data: in production this comes from your manifest.json (362 entries)
+// Each item: {id, name, tier, traits, price}
+const TIERS = ['Legendary','Epic','Rare','Uncommon','Common'];
+const TIER_COUNTS = {Legendary:12, Epic:35, Rare:75, Uncommon:110, Common:130};
+function buildDemoCollection(){
+  const items = [];
+  let id = 0;
+  for(const tier of TIERS){
+    for(let i=0;i<TIER_COUNTS[tier];i++){
+      items.push({
+        id, tier,
+        name: `Gloop #${id}`,
+        seed: Math.random()*1000,
+        price: tier==='Legendary' ? 5000+Math.floor(Math.random()*4000)
+              : tier==='Epic' ? 1200+Math.floor(Math.random()*1500)
+              : tier==='Rare' ? 400+Math.floor(Math.random()*600)
+              : tier==='Uncommon' ? 180+Math.floor(Math.random()*250)
+              : 80+Math.floor(Math.random()*100)
+      });
+      id++;
+    }
+  }
+  // Shuffle so tiers spread across the gallery
+  for(let i=items.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  // Re-id after shuffle
+  items.forEach((it,idx)=>{ it.id = idx; it.name = `Gloop #${idx}`; });
+  return items;
+}
+const COLLECTION = buildDemoCollection();
+let currentFilter = 'all';
+const CARDS_PER_VIEW = 12;
+
+function gloopBlobSVG(seed){
+  const cx=100, cy=104, n=9, b=58;
+  let d='';
+  // Use 7+ different shape "kinds" by integer-bucketing the seed
+  const kind = Math.floor(seed * 7) % 7;
+  const shapeAmpl = [8,12,6,10,14,5,11][kind];
+  const shapeFreq = [1.0,1.3,0.8,1.6,1.1,1.2,0.9][kind];
+  for(let i=0;i<=n;i++){
+    const a = i/n * Math.PI * 2;
+    const r = b + Math.sin(a*3*shapeFreq + seed)*shapeAmpl + Math.cos(a*2 + seed*1.3)*7;
+    const x = cx+Math.cos(a)*r, y = cy+Math.sin(a)*r;
+    d += i===0 ? `M${x.toFixed(1)} ${y.toFixed(1)}` : `L${x.toFixed(1)} ${y.toFixed(1)}`;
+  }
+  // Cycle through 6 gradients
+  const grads = ['url(#gg)','url(#gg2)','url(#ggold)','#9d8cff','#ff5d6c','#13f0e0'];
+  const fill = grads[Math.floor(seed) % grads.length];
+  // 5 eye types
+  const eyeKind = Math.floor(seed * 5) % 5;
+  let eyes;
+  if(eyeKind === 0) eyes = `<path d="M80 92l14 4M120 96l-14-4" stroke="#06080a" stroke-width="4" stroke-linecap="round"/><circle cx="86" cy="98" r="5" fill="#06080a"/><circle cx="114" cy="98" r="5" fill="#06080a"/>`;
+  else if(eyeKind === 1) eyes = `<path d="M80 96a8 8 0 0016 0M104 96a8 8 0 0016 0" stroke="#06080a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  else if(eyeKind === 2) eyes = `<circle cx="86" cy="96" r="7" fill="#06080a"/><circle cx="114" cy="96" r="7" fill="#06080a"/><circle cx="88" cy="94" r="2" fill="#fff"/><circle cx="116" cy="94" r="2" fill="#fff"/>`;
+  else if(eyeKind === 3) eyes = `<line x1="74" y1="96" x2="98" y2="96" stroke="#06080a" stroke-width="4" stroke-linecap="round"/><line x1="102" y1="96" x2="126" y2="96" stroke="#06080a" stroke-width="4" stroke-linecap="round"/>`;
+  else eyes = `<text x="86" y="104" font-size="18" fill="#06080a" text-anchor="middle" font-family="monospace" font-weight="bold">$</text><text x="114" y="104" font-size="18" fill="#06080a" text-anchor="middle" font-family="monospace" font-weight="bold">$</text>`;
+  // 4 mouth types
+  const mouthKind = Math.floor(seed * 4) % 4;
+  let mouth;
+  if(mouthKind === 0) mouth = `<path d="M84 124c10 8 22 8 32 0" stroke="#06080a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  else if(mouthKind === 1) mouth = `<ellipse cx="100" cy="126" rx="9" ry="7" fill="#06080a"/>`;
+  else if(mouthKind === 2) mouth = `<path d="M82 122h36v5a18 9 0 01-36 0Z" fill="#06080a"/>`;
+  else mouth = `<rect x="86" y="122" width="28" height="5" rx="2.5" fill="#06080a"/>`;
+  return `<svg viewBox="0 0 200 210" class="placeholder-blob"><path d="${d}Z" fill="${fill}"/>${eyes}${mouth}</svg>`;
+}
+
+function renderGallery(){
+  let filtered;
+  if(currentFilter === 'all') filtered = COLLECTION;
+  else if(currentFilter === 'mine'){
+    filtered = COLLECTION.filter(it => state.myGloops.includes(it.id));
+  }
+  else filtered = COLLECTION.filter(it => it.tier === currentFilter);
+  const slice = filtered.slice(0, CARDS_PER_VIEW);
+  document.getElementById('galleryCount').textContent =
+    `SHOWING ${slice.length} OF ${filtered.length}`;
+  document.getElementById('grid').innerHTML = slice.map(it=>{
+    const isMine = state.myGloops.includes(it.id);
+    return `
+    <div class="card ${it.tier.toLowerCase()}" data-id="${it.id}">
+      <div class="art">
+        ${isMine ? '<span class="b-mine">MINE</span>' : ''}
+        <span class="badge-corner b-${it.tier.toLowerCase()}">${it.tier.toUpperCase()}</span>
+        ${gloopBlobSVG(it.seed)}
+      </div>
+      <div class="meta">
+        <div class="nm">${it.name}</div>
+        <div class="sub2">${it.tier} variant</div>
+        <div class="row"><span class="price">${it.price} $KTA</span><span class="rank">rank ${it.id+1}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+renderGallery();
+
+// Filter buttons
+document.querySelectorAll('.gallery-controls .filter').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.gallery-controls .filter').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    currentFilter = btn.dataset.filter;
+    renderGallery();
+  });
+});
+
+function refreshGalleryMine(){
+  // Re-render so MINE badge updates
+  renderGallery();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RANKS LADDER
+// ═══════════════════════════════════════════════════════════════
+const RANKS = [
+  {key:'GLOOPED', ic:'🪙', t:'GLOOPED', req:'hold 1 Gloop', gl:'rgba(94,125,120,.25)'},
+  {key:'ABSORBER', ic:'🌀', t:'ABSORBER', req:'hold 3 · $1K KTA', gl:'rgba(19,240,224,.2)'},
+  {key:'FIAT REAPER', ic:'💀', t:'FIAT REAPER', req:'hold 10 · $10K KTA', gl:'rgba(57,255,154,.22)'},
+  {key:'LIQUIDITY LORD', ic:'👑', t:'LIQUIDITY LORD', req:'hold 25 · $50K KTA', gl:'rgba(157,140,255,.22)'},
+  {key:'GLOOP SOVEREIGN', ic:'🌌', t:'GLOOP SOVEREIGN', req:'hold 50 · top 100', gl:'rgba(255,210,74,.22)'},
+];
+document.getElementById('ranksBar').innerHTML = RANKS.map(r=>`
+  <div class="rk tier" data-rank="${r.key}" style="--gl:${r.gl}">
+    <div class="ic">${r.ic}</div>
+    <div class="t">${r.t}</div>
+    <div class="req">${r.req}</div>
+  </div>
+`).join('');
+
+// ═══════════════════════════════════════════════════════════════
+// HALL OF FAME
+// ═══════════════════════════════════════════════════════════════
+const HOF = [
+  {w:'reaper.keeta', t:'GLOOP SOVEREIGN', s:'48,210', c:'g', seed:1},
+  {w:'liquidlord.kt', t:'LIQUIDITY LORD', s:'41,905', c:'s', seed:2},
+  {w:'0xGL..00P', t:'LIQUIDITY LORD', s:'38,640', c:'b', seed:3},
+  {w:'glooppill.kt', t:'FIAT REAPER', s:'29,118', c:'', seed:4},
+  {w:'absorber.kt', t:'FIAT REAPER', s:'24,770', c:'', seed:5},
+  {w:'genesis.keeta', t:'GENESIS · DAY ONE', s:'22,300', c:'', seed:6},
+];
+function hofAvatar(seed){
+  return `<svg viewBox="0 0 48 48" width="24" height="24"><path d="M24 6c5 5 11 8 11 17 0 7-5 11-11 11s-11-4-11-11C13 14 19 11 24 6Z" fill="${seed%3===0?'url(#gg)':seed%3===1?'url(#gg2)':'url(#ggold)'}"/><circle cx="20" cy="22" r="2" fill="#06080a"/><circle cx="28" cy="22" r="2" fill="#06080a"/></svg>`;
+}
+document.getElementById('hof').innerHTML = HOF.map((h,i)=>`
+  <div class="hof-row">
+    <span class="rk ${h.c}">${i+1}</span>
+    <span class="av">${hofAvatar(h.seed)}</span>
+    <div class="info"><div class="who">${h.w}</div><div class="ttl">${h.t}</div></div>
+    <div class="score"><div class="n">${h.s}</div><div class="l">GLOOP SCORE</div></div>
+  </div>
+`).join('');
+
+// ═══════════════════════════════════════════════════════════════
+// SMOOTH SCROLL FOR NAV ANCHORS
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('[data-scroll]').forEach(el=>{
+  el.addEventListener('click', e=>{
+    e.preventDefault();
+    const id = el.dataset.scroll;
+    const target = document.getElementById(id);
+    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// KEETA ANALYTICS — live fiat token tracking
+// ═══════════════════════════════════════════════════════════════
+// Each fiat is identified by ISO code + optional on-chain account address.
+// When address is null, the dashboard uses simulated demo data.
+// When address is set, it queries the chain via state.keetaClient.
+//
+// To wire up real tokens later:
+//   1. Find the token account addresses on Keeta (explorer.keeta.com or chain query)
+//   2. Paste the addresses below as `account: 'keeta_...'`
+//   3. The dashboard will auto-detect, switch the badge to "LIVE", and pull real data
+const KEETA_FIATS = [
+  {code:'USD', name:'US Dollar',       flag:'🇺🇸', symbol:'$',  account:null, color:'#39ff9a'},
+  {code:'EUR', name:'Euro',            flag:'🇪🇺', symbol:'€',  account:null, color:'#13f0e0'},
+  {code:'GBP', name:'British Pound',   flag:'🇬🇧', symbol:'£',  account:null, color:'#9d5dff'},
+  {code:'JPY', name:'Japanese Yen',    flag:'🇯🇵', symbol:'¥',  account:null, color:'#ffd24a'},
+  {code:'AED', name:'UAE Dirham',      flag:'🇦🇪', symbol:'د.إ',account:null, color:'#ff8a3d'},
+  {code:'CHF', name:'Swiss Franc',     flag:'🇨🇭', symbol:'Fr', account:null, color:'#ff5d6c'},
+  {code:'CAD', name:'Canadian Dollar', flag:'🇨🇦', symbol:'$',  account:null, color:'#5db4ff'},
+  {code:'AUD', name:'Australian Dollar',flag:'🇦🇺',symbol:'$',  account:null, color:'#ff7ad4'},
+  {code:'SGD', name:'Singapore Dollar',flag:'🇸🇬', symbol:'$',  account:null, color:'#a8f028'},
+];
+
+// Per-fiat state — populated by polling. Use deterministic-ish demo data so
+// numbers don't jump wildly between renders.
+const fiatState = {};
+function seedRand(seed){let s=seed||1;return ()=>{s=Math.imul(s,1664525)+1013904223|0; return ((s>>>0)/4294967296);};}
+function initFiatState(){
+  // Initialize per-fiat demo data with deterministic seeds
+  KEETA_FIATS.forEach((f, i) => {
+    const r = seedRand((i+1)*7919);
+    // Reasonable demo numbers — supply scales with currency popularity
+    const popMultiplier = {USD:50, EUR:30, GBP:18, JPY:25, AED:8, CHF:6, CAD:7, AUD:5, SGD:4}[f.code] || 5;
+    const supplyMillions = popMultiplier * (0.8 + r()*0.4);  // millions of units
+    const holders = Math.floor(popMultiplier * (1500 + r()*4000));
+    const vol24h = supplyMillions * (0.04 + r()*0.18); // 4-22% turnover
+    const txCount = Math.floor(popMultiplier * (300 + r()*900));
+    const priceUsd = {USD:1, EUR:1.08, GBP:1.27, JPY:0.0067, AED:0.27, CHF:1.13, CAD:0.74, AUD:0.66, SGD:0.74}[f.code] || 1;
+    fiatState[f.code] = {
+      supplyM: supplyMillions,
+      holders,
+      vol24h,             // in millions of fiat units
+      txCount,
+      priceUsd,
+      priceCh24: (r()-0.5) * 1.8,  // -0.9% .. +0.9% daily
+      marketCapUsdM: supplyMillions * priceUsd,
+      sparkData: Array.from({length:24}, (_,k) => 0.85 + r()*0.3),
+      live: false, // becomes true if we successfully read this token from chain
+    };
+  });
+}
+initFiatState();
+
+let analyticsRefreshTimer = null;
+let activeBarMetric = 'supply';
+let activeLineTf = '24h';
+
+// Number formatting helpers
+function fmtNum(n){
+  if(!isFinite(n) || n==null) return '—';
+  if(Math.abs(n) >= 1e9) return (n/1e9).toFixed(2)+'B';
+  if(Math.abs(n) >= 1e6) return (n/1e6).toFixed(2)+'M';
+  if(Math.abs(n) >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toFixed(0);
+}
+function fmtSig(n, sig=4){
+  if(!isFinite(n) || n==null) return '—';
+  if(n < 0.01) return n.toFixed(5);
+  if(n < 1)    return n.toFixed(4);
+  if(n < 100)  return n.toFixed(2);
+  return n.toFixed(0);
+}
+
+// Render per-fiat cards
+function renderFiatCards(){
+  const grid = document.getElementById('fiatGrid');
+  grid.innerHTML = KEETA_FIATS.map(f => {
+    const s = fiatState[f.code];
+    const chClass = s.priceCh24 >= 0 ? 'up' : 'down';
+    const chSign = s.priceCh24 >= 0 ? '▲' : '▼';
+    return `
+    <div class="fiat-card" data-code="${f.code}">
+      <div class="head">
+        <div class="left">
+          <span class="flag">${f.flag}</span>
+          <span class="code">${f.code}</span>
+        </div>
+        <div class="price">
+          <div class="val">$${fmtSig(s.priceUsd)}</div>
+          <div class="ch ${chClass}">${chSign} ${Math.abs(s.priceCh24).toFixed(2)}%</div>
+        </div>
+      </div>
+      <div class="fiat-stats">
+        <div>
+          <div class="k">SUPPLY</div>
+          <div class="v">${fmtNum(s.supplyM*1e6)}</div>
+        </div>
+        <div>
+          <div class="k">HOLDERS</div>
+          <div class="v">${fmtNum(s.holders)}</div>
+        </div>
+        <div>
+          <div class="k">24H VOL</div>
+          <div class="v gloop">${fmtNum(s.vol24h*1e6)}</div>
+        </div>
+        <div>
+          <div class="k">MKT CAP</div>
+          <div class="v">$${fmtNum(s.marketCapUsdM*1e6)}</div>
+        </div>
+        <div class="row-full">
+          <div class="k">LIVE TX</div>
+          <div class="v gloop">${s.txCount.toLocaleString()}</div>
+        </div>
+      </div>
+      <div class="spark">
+        ${s.live ? '<span class="live-dot"></span>' : ''}
+        ${buildSparkSVG(s.sparkData, f.color)}
+      </div>
+    </div>`;
+  }).join('');
+  // Click → set active for the line chart focus
+  grid.querySelectorAll('.fiat-card').forEach(card => {
+    card.addEventListener('click', () => {
+      grid.querySelectorAll('.fiat-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    });
+  });
+}
+
+function buildSparkSVG(data, color){
+  if(!data || data.length < 2) return '';
+  const W=300, H=32, pad=2;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v,i) => {
+    const x = pad + (i/(data.length-1)) * (W - pad*2);
+    const y = pad + (1 - (v-min)/range) * (H - pad*2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const polyline = pts.join(' ');
+  const area = `${pad},${H} ${polyline.split(' ').join(' ')} ${W-pad},${H}`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <polygon points="${area}" fill="${color}" opacity="0.15"/>
+    <polyline points="${polyline}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`;
+}
+
+// Update network-wide stats bar
+function updateNetworkStats(){
+  let liveCount = 0, holders = 0, volUsdM = 0, txCount = 0;
+  for(const code of Object.keys(fiatState)){
+    const f = KEETA_FIATS.find(x=>x.code===code);
+    const s = fiatState[code];
+    if(s.live) liveCount++;
+    holders += s.holders;
+    volUsdM += s.vol24h * s.priceUsd;
+    txCount += s.txCount;
+  }
+  document.getElementById('nsFiats').textContent = `${KEETA_FIATS.length}`;
+  document.getElementById('nsHolders').textContent = fmtNum(holders);
+  document.getElementById('nsVolume').textContent = '$' + fmtNum(volUsdM * 1e6);
+  document.getElementById('nsTxCount').textContent = txCount.toLocaleString();
+}
+
+// Set the analytics badge based on whether any tokens are live
+function updateAnalyticsBadge(){
+  const liveTokens = KEETA_FIATS.filter(f => fiatState[f.code].live).length;
+  const badge = document.getElementById('analyticsBadge');
+  if(liveTokens > 0){
+    badge.className = 'data-badge live';
+    badge.textContent = `LIVE · ${liveTokens}/${KEETA_FIATS.length}`;
+  } else {
+    badge.className = 'data-badge demo';
+    badge.textContent = 'DEMO DATA';
+  }
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('analyticsLastUpdate').textContent = `UPDATED ${hh}:${mm}:${ss}`;
+}
+
+// ─── LINE CHART (volume trend, multi-series) ───
+function renderLineChart(){
+  const svg = document.getElementById('chartLine');
+  const legendEl = document.getElementById('chartLineLegend');
+  if(!svg) return;
+
+  const W = 600, H = 240;
+  const padL = 50, padR = 14, padT = 14, padB = 26;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+
+  // Pick top 4 by volume for clarity in line chart
+  const top = [...KEETA_FIATS]
+    .sort((a,b) => fiatState[b.code].vol24h*fiatState[b.code].priceUsd - fiatState[a.code].vol24h*fiatState[a.code].priceUsd)
+    .slice(0, 4);
+  // Each series: 24 points generated from sparkData scaled to vol24h
+  const series = top.map(f => {
+    const s = fiatState[f.code];
+    const data = s.sparkData.map(v => v * s.vol24h * s.priceUsd); // USD-equiv volume
+    return {code: f.code, color: f.color, data, hidden: false};
+  });
+  // Allow series to be toggled via legend.
+  if(!window._lineHidden) window._lineHidden = new Set();
+  series.forEach(s => { s.hidden = window._lineHidden.has(s.code); });
+
+  // Compute Y-axis max from visible series
+  let yMax = 0;
+  series.forEach(s => { if(!s.hidden) s.data.forEach(v => { if(v > yMax) yMax = v; }); });
+  if(yMax === 0) yMax = 1;
+  yMax *= 1.1;
+
+  // Build the SVG content
+  const lines = [];
+  // Gridlines
+  for(let i=0; i<=4; i++){
+    const y = padT + (i/4) * innerH;
+    const v = yMax * (1 - i/4);
+    lines.push(`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#1c2a31" stroke-width="0.7"/>`);
+    lines.push(`<text x="${padL-6}" y="${y+3.5}" font-family="Space Mono, monospace" font-size="9" fill="#5e7d78" text-anchor="end">$${fmtNum(v*1e6)}</text>`);
+  }
+  // X-axis labels (hours)
+  const tfLabels = {'24h':'24h ago','7d':'7d ago','30d':'30d ago'};
+  lines.push(`<text x="${padL}" y="${H-8}" font-family="Space Mono, monospace" font-size="9" fill="#5e7d78">${tfLabels[activeLineTf]||'24h ago'}</text>`);
+  lines.push(`<text x="${W-padR}" y="${H-8}" font-family="Space Mono, monospace" font-size="9" fill="#5e7d78" text-anchor="end">now</text>`);
+
+  // Series lines
+  for(const s of series){
+    if(s.hidden) continue;
+    const pts = s.data.map((v,i) => {
+      const x = padL + (i/(s.data.length-1)) * innerW;
+      const y = padT + (1 - v/yMax) * innerH;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    const area = `${padL},${padT+innerH} ${pts.join(' ')} ${W-padR},${padT+innerH}`;
+    lines.push(`<polygon points="${area}" fill="${s.color}" opacity="0.08"/>`);
+    lines.push(`<polyline points="${pts.join(' ')}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`);
+    // End-of-line dot
+    const last = pts[pts.length-1].split(',');
+    lines.push(`<circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${s.color}"/>`);
+  }
+  svg.innerHTML = lines.join('');
+
+  // Legend
+  legendEl.innerHTML = series.map(s => `
+    <span class="lg ${s.hidden?'off':''}" data-code="${s.code}">
+      <span class="sw" style="background:${s.color}"></span>${s.code}
+    </span>
+  `).join('');
+  legendEl.querySelectorAll('.lg').forEach(el => {
+    el.addEventListener('click', () => {
+      const code = el.dataset.code;
+      if(window._lineHidden.has(code)) window._lineHidden.delete(code);
+      else window._lineHidden.add(code);
+      renderLineChart();
+    });
+  });
+}
+
+// ─── BAR CHART (comparison) ───
+function renderBarChart(){
+  const svg = document.getElementById('chartBar');
+  if(!svg) return;
+  const W=380, H=240;
+  const padL=42, padR=8, padT=14, padB=34;
+  const innerW = W-padL-padR, innerH = H-padT-padB;
+  // Get values
+  const data = KEETA_FIATS.map(f => {
+    const s = fiatState[f.code];
+    let val;
+    if(activeBarMetric === 'supply')  val = s.supplyM * 1e6;
+    else if(activeBarMetric === 'holders') val = s.holders;
+    else                              val = s.vol24h * 1e6; // volume in fiat units
+    return {code: f.code, color: f.color, val};
+  });
+  const max = Math.max(...data.map(d=>d.val)) * 1.1 || 1;
+  const barW = innerW / data.length * 0.7;
+  const gap  = innerW / data.length * 0.3;
+  const lines = [];
+  // Y-axis labels
+  for(let i=0; i<=4; i++){
+    const y = padT + (i/4) * innerH;
+    const v = max * (1 - i/4);
+    lines.push(`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#1c2a31" stroke-width="0.7"/>`);
+    lines.push(`<text x="${padL-5}" y="${y+3.5}" font-family="Space Mono, monospace" font-size="9" fill="#5e7d78" text-anchor="end">${fmtNum(v)}</text>`);
+  }
+  // Bars
+  data.forEach((d, i) => {
+    const h = (d.val/max) * innerH;
+    const x = padL + i*(barW + gap) + gap/2;
+    const y = padT + innerH - h;
+    lines.push(`<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="2" fill="${d.color}" opacity="0.9">
+      <animate attributeName="height" from="0" to="${h}" dur="0.6s" fill="freeze"/>
+      <animate attributeName="y" from="${padT+innerH}" to="${y}" dur="0.6s" fill="freeze"/>
+    </rect>`);
+    lines.push(`<text x="${x+barW/2}" y="${H-18}" font-family="Space Mono, monospace" font-size="9" fill="#a5c0b8" text-anchor="middle" font-weight="700">${d.code}</text>`);
+    lines.push(`<text x="${x+barW/2}" y="${H-6}" font-family="Space Mono, monospace" font-size="8.5" fill="#5e7d78" text-anchor="middle">${fmtNum(d.val)}</text>`);
+  });
+  svg.innerHTML = lines.join('');
+}
+
+// ─── REAL CHAIN DATA QUERY (when token addresses are present) ───
+async function queryChainForFiat(fiat){
+  if(!fiat.account || !state.keetaClient) return null;
+  try{
+    const KeetaNet = window.KeetaNet;
+    if(!KeetaNet) return null;
+    const tokenAccount = KeetaNet.lib.Account.fromPublicKeyString(fiat.account);
+    // The SDK exposes various chain queries; we use what's known to exist.
+    // Most reliable: get account info + balance for the token issuer account.
+    // If info() / chain() methods exist, this returns supply/metadata.
+    const result = {};
+    if(typeof state.keetaClient.chain === 'function'){
+      try{
+        const chain = await state.keetaClient.chain(tokenAccount);
+        if(chain) result.chain = chain;
+      }catch(e){}
+    }
+    // Best-effort: fetch info via account
+    try{
+      const balances = await state.keetaClient.allBalances(fiat.account);
+      if(Array.isArray(balances)){
+        const self = balances.find(b => {
+          const tk = (b.token||'').toString();
+          return tk.includes(fiat.account);
+        });
+        if(self){
+          const raw = (self.balance ?? self.amount ?? 0).toString().replace('n','');
+          // Token decimals from info, default to 18
+          const dec = (self.info && self.info.decimals) || 18;
+          result.supply = Number(BigInt(raw)) / Math.pow(10, dec);
+          if(self.info){
+            result.name = self.info.name;
+            result.symbol = self.info.symbol;
+            result.decimals = dec;
+          }
+        }
+      }
+    }catch(e){
+      // Token doesn't exist or auth issue — silently return null
+      return null;
+    }
+    return Object.keys(result).length ? result : null;
+  }catch(e){
+    return null;
+  }
+}
+
+async function refreshAnalytics(){
+  // ── PATH 1: Indexer is live → fetch real network + token data ──
+  if(indexerLive){
+    try{
+      const [netData, tokData] = await Promise.all([
+        indexerFetch('/api/network'),
+        indexerFetch('/api/tokens')
+      ]);
+      if(netData && tokData?.tokens){
+        // Map indexer tokens → fiatState by ISO code or symbol
+        for(const t of tokData.tokens){
+          const code = t.iso_code || t.symbol;
+          // If this token isn't in our fiat list, skip (indexer also tracks KTA/stables)
+          if(!fiatState[code]) continue;
+          const s = fiatState[code];
+          s.supplyM = (t.total_supply_float || 0) / 1e6;
+          s.holders = t.holder_count || 0;
+          s.vol24h = (t.volume_24h_float || 0) / 1e6;
+          s.txCount = t.tx_count_24h || 0;
+          s.priceUsd = t.price_usd ?? s.priceUsd;
+          s.priceCh24 = t.price_change_24h ?? 0;
+          s.marketCapUsdM = (t.market_cap_usd || 0) / 1e6;
+          s.live = true;
+        }
+        // Update network-wide stats bar from real data
+        const nsHolders = document.getElementById('nsHolders');
+        const nsVolume = document.getElementById('nsVolume');
+        const nsTxCount = document.getElementById('nsTxCount');
+        if(nsHolders) nsHolders.textContent = fmtNum(netData.total_holders);
+        if(nsVolume) nsVolume.textContent = '$' + fmtNum(netData.volume_24h_usd);
+        if(nsTxCount) nsTxCount.textContent = netData.tx_count_24h.toLocaleString();
+      }
+    }catch(e){
+      console.warn('Indexer fetch failed, falling back to demo drift:', e.message);
+    }
+    renderFiatCards();
+    renderLineChart();
+    renderBarChart();
+    updateNetworkStats();
+    updateAnalyticsBadge();
+    return;
+  }
+
+  // ── PATH 2: No indexer → keep the existing demo-drift behavior ──
+  let liveAny = false;
+  for(const f of KEETA_FIATS){
+    const s = fiatState[f.code];
+    let real = null;
+    if(f.account && state.keetaClient){
+      real = await queryChainForFiat(f);
+    }
+    if(real){
+      if(real.supply != null) s.supplyM = real.supply / 1e6;
+      s.live = true;
+      liveAny = true;
+    } else {
+      s.live = false;
+      const drift = (Math.random()-0.5) * 0.012;
+      s.supplyM *= (1 + drift);
+      s.holders = Math.max(100, s.holders + Math.floor((Math.random()-0.5)*40));
+      s.vol24h *= (1 + (Math.random()-0.5) * 0.05);
+      s.txCount += Math.floor(Math.random()*15);
+      s.priceCh24 += (Math.random()-0.5) * 0.15;
+      s.priceCh24 = Math.max(-3, Math.min(3, s.priceCh24));
+      s.priceUsd *= (1 + (Math.random()-0.5) * 0.0008);
+      s.marketCapUsdM = s.supplyM * s.priceUsd;
+      s.sparkData.shift();
+      s.sparkData.push(s.sparkData[s.sparkData.length-1] * (1 + (Math.random()-0.5) * 0.08));
+    }
+  }
+  renderFiatCards();
+  renderLineChart();
+  renderBarChart();
+  updateNetworkStats();
+  updateAnalyticsBadge();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HOLDINGS PANEL
+// ═══════════════════════════════════════════════════════════════
+// Pulls wallet holdings from the indexer (if reachable) — which combines
+// chain balances + USD prices. Falls back to chain-direct query when offline.
+let holdingsData = [];
+let holdingsFilter = 'all';
+let holdingsSortKey = 'balance';
+let holdingsSortDir = 'desc';
+
+async function refreshHoldings(){
+  if(!state.address){
+    document.getElementById('holdingsBody').innerHTML = `
+      <tr><td colspan="5" class="holdings-empty">
+        <div class="ic">🔌</div>
+        <div>Connect your wallet to see your holdings</div>
+      </td></tr>`;
+    document.getElementById('holdingsTotal').textContent = '—';
+    return;
+  }
+
+  let data = null;
+  // ── Try indexer first (real prices already attached) ──
+  if(indexerLive){
+    data = await indexerFetch('/api/wallet/' + encodeURIComponent(state.address), {timeoutMs: 10000});
+  }
+
+  // ── Fallback: query chain directly (balances only, no prices) ──
+  if(!data){
+    try{
+      if(!state.keetaClient){
+        document.getElementById('holdingsBody').innerHTML = `
+          <tr><td colspan="5" class="holdings-empty">
+            <div class="ic">⏳</div>
+            <div>Loading wallet…</div>
+          </td></tr>`;
+        return;
+      }
+      const balances = await state.keetaClient.allBalances(state.address);
+      if(!Array.isArray(balances)) throw new Error('Bad response');
+      const holdings = balances.map(b => {
+        const tokenStr = (b.token||'').toString();
+        const decimals = b.info?.decimals ?? 18;
+        const symbol = b.info?.symbol || 'UNKNOWN';
+        const name = b.info?.name || symbol;
+        const isIso = /^[A-Z]{3}$/.test(symbol);
+        const isKta = !!b.isBaseToken;
+        const isStable = ['USDC','USDT','DAI','USDX','GUSD','BUSD','TUSD','FRAX'].includes(symbol);
+        const raw = (b.balance ?? b.amount ?? 0).toString().replace('n','');
+        let bal = 0;
+        try{ bal = Number(BigInt(raw)) / Math.pow(10, decimals); }catch{}
+        return {
+          token_id: tokenStr, symbol, name, decimals,
+          category: isKta ? 'crypto' : isStable ? 'stable' : isIso ? 'fiat' : 'token',
+          iso_code: isIso ? symbol : null,
+          is_base_token: isKta,
+          balance: bal, balance_raw: raw,
+          price_usd: isKta ? null : (isStable ? 1.00 : null),
+          price_change_24h: null,
+          value_usd: null,
+          price_source: isStable ? 'assumed-peg' : null
+        };
+      });
+      holdings.sort((a,b) => {
+        if(a.is_base_token && !b.is_base_token) return -1;
+        if(!a.is_base_token && b.is_base_token) return 1;
+        return (b.value_usd||0) - (a.value_usd||0);
+      });
+      data = { holdings, total_value_usd: holdings.reduce((s,h)=>s+(h.value_usd||0),0) };
+    }catch(e){
+      console.warn('Holdings fetch fallback failed:', e.message);
+      document.getElementById('holdingsBody').innerHTML = `
+        <tr><td colspan="5" class="holdings-empty">
+          <div class="ic">⚠</div>
+          <div>Could not load holdings. Try refreshing.</div>
+        </td></tr>`;
+      return;
+    }
+  }
+
+  holdingsData = data.holdings || [];
+  // Update Mine count in the gloop stat bar
+  document.getElementById('holdingsTotal').textContent = '$' + fmtSig(data.total_value_usd || 0, 2);
+  renderHoldings();
+}
+
+function categoryIcon(cat, sym){
+  if(cat === 'fiat') return ({USD:'🇺🇸',EUR:'🇪🇺',GBP:'🇬🇧',JPY:'🇯🇵',AED:'🇦🇪',CHF:'🇨🇭',CAD:'🇨🇦',AUD:'🇦🇺',SGD:'🇸🇬'}[sym]) || '💱';
+  if(cat === 'crypto') return '◆';
+  if(cat === 'stable') return '$';
+  return '◇';
+}
+
+function renderHoldings(){
+  const tbody = document.getElementById('holdingsBody');
+  if(holdingsData.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5" class="holdings-empty">
+      <div class="ic">∅</div>
+      <div>No tokens detected in this wallet</div>
+    </td></tr>`;
+    return;
+  }
+
+  // Apply filter
+  let filtered = holdingsData;
+  if(holdingsFilter !== 'all'){
+    filtered = holdingsData.filter(h => h.category === holdingsFilter);
+  }
+
+  // Apply sort (always keep KTA pinned at top)
+  filtered.sort((a, b) => {
+    if(a.is_base_token && !b.is_base_token) return -1;
+    if(!a.is_base_token && b.is_base_token) return 1;
+    const av = a[holdingsSortKey] ?? 0;
+    const bv = b[holdingsSortKey] ?? 0;
+    if(typeof av === 'string') return holdingsSortDir === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv);
+    return holdingsSortDir === 'desc' ? (bv - av) : (av - bv);
+  });
+
+  tbody.innerHTML = filtered.map(h => {
+    const change = h.price_change_24h;
+    const chClass = change == null ? 'flat' : change >= 0.01 ? 'up' : change <= -0.01 ? 'down' : 'flat';
+    const chTxt = change == null ? '—' : `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+    const priceTxt = h.price_usd != null ? '$' + fmtSig(h.price_usd) : '—';
+    const valTxt = h.value_usd != null ? '$' + fmtSig(h.value_usd, 2) : '—';
+    const tag = h.is_base_token ? '<span class="tag">BASE</span>' : '';
+    const srcBadge = h.price_source === 'assumed-peg' ? '<span class="price-source">peg</span>' : '';
+    return `
+    <tr class="${h.is_base_token ? 'kta' : ''}">
+      <td class="asset">
+        <span class="icon">${categoryIcon(h.category, h.symbol)}</span>
+        <span class="info">
+          <span class="sym">${h.symbol}${tag}</span>
+          <span class="nm">${h.name}</span>
+        </span>
+      </td>
+      <td class="amt">${fmtSig(h.balance, h.balance < 1 ? 5 : 2)}</td>
+      <td class="price">${priceTxt}${srcBadge}</td>
+      <td class="val">${valTxt}</td>
+      <td class="ch ${chClass}">${chTxt}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Filter buttons
+document.querySelectorAll('[data-hf]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-hf]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    holdingsFilter = btn.dataset.hf;
+    renderHoldings();
+  });
+});
+
+// Column sorting
+document.querySelectorAll('.holdings-table th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if(holdingsSortKey === key){
+      holdingsSortDir = holdingsSortDir === 'desc' ? 'asc' : 'desc';
+    } else {
+      holdingsSortKey = key;
+      holdingsSortDir = 'desc';
+    }
+    // Update header visuals
+    document.querySelectorAll('.holdings-table th').forEach(t => {
+      t.classList.remove('sorted');
+      const arr = t.querySelector('.arr');
+      if(arr) arr.remove();
+    });
+    th.classList.add('sorted');
+    const arrSpan = document.createElement('span');
+    arrSpan.className = 'arr';
+    arrSpan.textContent = holdingsSortDir === 'desc' ? '↓' : '↑';
+    th.appendChild(arrSpan);
+    document.getElementById('holdingsSortLabel').textContent = `SORTED BY ${key.toUpperCase().replace('_',' ')} ${holdingsSortDir === 'desc' ? '↓' : '↑'}`;
+    renderHoldings();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE CONVERTER
+// ═══════════════════════════════════════════════════════════════
+// Uses the same price/FX data as the analytics section.
+// Pure JS conversion via USD as the bridge currency.
+const CONV_SYMBOLS = ['KTA','USD','EUR','GBP','JPY','AED','CHF','CAD','AUD','SGD'];
+
+function getPriceForSym(sym){
+  if(sym === 'KTA'){
+    // KTA price comes from CoinGecko via the analytics fiatState (or fallback)
+    // We don't have a direct fiatState entry for KTA, so default to a sensible static
+    // until the indexer is wired. Once indexer is live, /api/tokens returns KTA price.
+    return state._ktaPriceUsd || 0.20;
+  }
+  const s = fiatState[sym];
+  return s?.priceUsd ?? 1;
+}
+
+function convert(amt, from, to){
+  const pFrom = getPriceForSym(from);
+  const pTo = getPriceForSym(to);
+  if(!pFrom || !pTo) return null;
+  // Cross via USD
+  const usdValue = amt * pFrom;
+  return usdValue / pTo;
+}
+
+function initConverter(){
+  const fromSel = document.getElementById('cnvFromSym');
+  const toSel = document.getElementById('cnvToSym');
+  const opts = CONV_SYMBOLS.map(s => `<option value="${s}">${s}</option>`).join('');
+  fromSel.innerHTML = opts;
+  toSel.innerHTML = opts;
+  fromSel.value = 'KTA';
+  toSel.value = 'USD';
+
+  const fromAmt = document.getElementById('cnvFromAmt');
+  const toAmt = document.getElementById('cnvToAmt');
+  const rateLabel = document.getElementById('cnvRate');
+
+  function recalc(){
+    const amt = parseFloat(fromAmt.value) || 0;
+    const out = convert(amt, fromSel.value, toSel.value);
+    if(out == null){
+      toAmt.value = '—';
+      rateLabel.textContent = 'Rate unavailable';
+      return;
+    }
+    toAmt.value = out < 0.01 ? out.toFixed(6) : out.toFixed(4);
+    const unitRate = convert(1, fromSel.value, toSel.value);
+    rateLabel.textContent = `1 ${fromSel.value} = ${unitRate < 0.01 ? unitRate.toFixed(6) : unitRate.toFixed(4)} ${toSel.value}`;
+  }
+  [fromAmt, fromSel, toSel].forEach(el => el.addEventListener('input', recalc));
+  fromSel.addEventListener('change', recalc);
+  toSel.addEventListener('change', recalc);
+
+  document.getElementById('cnvSwap').addEventListener('click', () => {
+    const a = fromSel.value, b = toSel.value;
+    fromSel.value = b; toSel.value = a;
+    recalc();
+  });
+
+  recalc();
+  // Recalc when fiat prices update (after analytics refresh)
+  setInterval(recalc, 12000);
+}
+initConverter();
+
+// Hook into existing wallet flows so holdings refresh on connect/disconnect
+const _origUpdateWalletUI = updateWalletUI;
+updateWalletUI = function(){
+  _origUpdateWalletUI.apply(this, arguments);
+  refreshHoldings();
+};
+
+// Pull KTA price from indexer if available (used by the converter)
+async function fetchKtaPrice(){
+  if(!indexerLive) return;
+  const data = await indexerFetch('/api/tokens');
+  const kta = data?.tokens?.find(t => t.is_base_token);
+  if(kta?.price_usd) state._ktaPriceUsd = kta.price_usd;
+}
+fetchKtaPrice();
+setInterval(fetchKtaPrice, 60000);
+
+// Initial render
+renderFiatCards();
+renderLineChart();
+renderBarChart();
+updateNetworkStats();
+updateAnalyticsBadge();
+
+// Bar chart controls
+document.querySelectorAll('[data-bar]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-bar]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    activeBarMetric = btn.dataset.bar;
+    renderBarChart();
+  });
+});
+// Line chart timeframe controls
+document.querySelectorAll('[data-tf]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-tf]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    activeLineTf = btn.dataset.tf;
+    // For demo data, all timeframes use the same sparkData. Real impl would re-fetch.
+    renderLineChart();
+  });
+});
+
+// Refresh analytics every 12 seconds (drift demo OR poll real chain)
+analyticsRefreshTimer = setInterval(refreshAnalytics, 12000);
+
+// Initial UI
+updateWalletUI();
+
+console.log('🟢 Gloop Dashboard V2 ready. Keeta MAINNET, KeetaNet SDK', window.KeetaNet ? 'loaded' : 'pending...');
+</script>
+</body>
+</html>
