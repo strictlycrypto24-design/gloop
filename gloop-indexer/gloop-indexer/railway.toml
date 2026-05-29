@@ -1,0 +1,14 @@
+# Railway deploy configuration.
+# Railway auto-detects Node.js projects, but this file makes the build explicit.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[deploy.healthcheck]
+path = "/api/health"
+timeout = 30
